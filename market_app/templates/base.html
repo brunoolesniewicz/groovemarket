@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GrooveMarket</title>
+<style>
+</style>
+</head>
+<body>
+<h1 class="logo">GrooveMarket</h1>
+<header>
+    <nav>
+        <ul>
+            <li><a href="/">Strona główna</a></li>
+            {% if user.is_authenticated %}
+                <li><a href="#">Opcja 1</a></li>
+                <li><a href="#">Opcja 2</a></li>
+                <li><a href="#">Opcja 3</a></li>
+                <li><a href="#">Opcja 4</a></li>
+                <li><a href="#">Opcja 5</a></li>
+                <li><a href="/logout/">Wyloguj się</a></li>
+            {% else %}
+                <li><a href="/login/">Zaloguj się</a></li>
+                <li><a href="/register/">Utwórz konto</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+</header>
+<main>
+    {% block content %}
+
+    {% endblock %}
+</main>
+{% if user.is_authenticated %}
+    <div class="user-info">
+        Witaj, {{ user.username }}!
+    </div>
+{% endif %}
+
+</body>
+</html>
