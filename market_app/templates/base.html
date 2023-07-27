@@ -2,8 +2,8 @@
 <html>
 <head>
     <title>GrooveMarket</title>
-<style>
-</style>
+    <style>
+    </style>
 </head>
 <body>
 <h1 class="logo">GrooveMarket</h1>
@@ -16,7 +16,7 @@
                 <li><a href="#">Opcja 2</a></li>
                 <li><a href="#">Opcja 3</a></li>
                 <li><a href="#">Opcja 4</a></li>
-                <li><a href="#">Opcja 5</a></li>
+                <li><a href="/my_account/">Moje dane</a></li>
                 <li><a href="/logout/">Wyloguj się</a></li>
             {% else %}
                 <li><a href="/login/">Zaloguj się</a></li>
@@ -27,14 +27,16 @@
 </header>
 <main>
     {% block content %}
-
+        {% if user.is_authenticated %}
+            <div class="user-info">
+                Witaj, {{ user.username }}!
+            </div>
+            {% else %}
+            <div>
+                Aby móc korzystać z pełnych możliwości serwisu, proszę się zalogować
+            </div>
+        {% endif %}
     {% endblock %}
 </main>
-{% if user.is_authenticated %}
-    <div class="user-info">
-        Witaj, {{ user.username }}!
-    </div>
-{% endif %}
-
 </body>
 </html>

@@ -1,9 +1,12 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth import authenticate, login, logout
-from .models import CustomUser
-from django.views.generic import CreateView
-from .forms import CreateUserForm, LoginForm
+from .models import CustomUser, Listings, UsersFollows
+from django.views.generic import CreateView, UpdateView
+from .forms import CreateUserForm, LoginForm, UpdateUserDetailsForm
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.views import PasswordChangeView
 
 
 class LandingPageView(View):
@@ -60,3 +63,37 @@ class CreateUserView(CreateView):
             return super().form_valid(form)
         else:
             return self.form_invalid(form)
+
+
+class MyAccountView(LoginRequiredMixin, View):
+    def get(self, request):
+        user = request.user
+        user_listings_count = Listings.objects.filter(seller=user).count()
+        followers_count = UsersFollows.objects.filter(following=user).count()
+        following_count = UsersFollows.objects.filter(follower=user).count()
+
+        context = {
+            'user': user,
+            'user_listings_count': user_listings_count,
+            'followers_count': followers_count,
+            'following_count': following_count,
+        }
+
+        return render(request, "my_account.html", context)
+
+
+class UpdateUserDetailsView(LoginRequiredMixin, UpdateView):
+    form_class = UpdateUserDetailsForm
+    template_name = "update_user_details_form.html"
+    success_url = "/my_account/"
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+
+class ChangePasswordView(LoginRequiredMixin, PasswordChangeView):
+    form_class = PasswordChangeForm
+    template_name = "change_password_form.html"
+    success_url = "/my_account/"
+
+

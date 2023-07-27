@@ -6,7 +6,7 @@ from autoslug import AutoSlugField
 
 class CustomUser(AbstractUser):
     bio = models.TextField(max_length=150, blank=True)
-    avatar = models.ImageField(upload_to='avatars/', default='default_avatar.jpg', blank=True, null=True)
+    avatar = models.ImageField(upload_to='avatars/', default='default_avatar.jpg', blank=False, null=True)
     follows = models.ManyToManyField('self', symmetrical=False, through="UsersFollows")
     slug = AutoSlugField(populate_from="username", unique=True)
 
