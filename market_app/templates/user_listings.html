@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div>
+        <img src="{{ user.avatar.url }}" alt="{{ user.username }}" width="100">
+        <h2>{{ user.username }}</h2>
+        <div>
+            <p><strong>Bio:</strong> {{ user.bio }}</p>
+            <p><strong>Data dołączenia:</strong> {{ user.date_joined }}</p>
+            <p><strong>Obserwujący:</strong><a
+                    href="/{{ user.username }}/followers/"> {{ followers_count }}</a></p>
+            <p><strong>Obserwowani:</strong><a
+                    href="/{{ user.username }}/following/"> {{ following_count }}</a></p>
+        </div>
+        <div>
+            {% if listings %}
+                <h2>Liczba ogłoszeń: {{ user_listings_count }}</h2>
+                <ul>
+                    {% for listing in listings %}
+                        <p><strong>{{ listing.title }}</strong></p>
+                        <p><strong>{{ listing.price }}</strong></p>
+                        {% if listing.images %}
+                            <p><img src="{{ listing.images.0.url }}" alt="Image 1" width="200"></p>
+                        {% else %}
+                            <p><strong>Brak zdjęć</strong></p>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <h2>Brak ogłoszeń</h2>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

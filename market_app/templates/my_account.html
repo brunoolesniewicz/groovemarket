@@ -9,7 +9,7 @@
             <p><strong>Nazwa użytkownika:</strong> {{ user.username }}</p>
             <p><strong>Bio:</strong> {{ user.bio }}</p>
             <p><strong>Data dołączenia:</strong> {{ user.date_joined }}</p>
-            <p><strong>Liczba ogłoszeń:</strong><a href="/{{ user.username }}/listings/"> {{ user_listings_count }}</a></p>
+            <p><strong>Liczba ogłoszeń:</strong><a href="/{{ user.username }}/"> {{ user_listings_count }}</a></p>
             <p><strong>Liczba obserwujących:</strong><a href="/{{ user.username }}/followers/"> {{ followers_count }}</a></p>
             <p><strong>Liczba obserwowanych:</strong><a href="/{{ user.username }}/following/"> {{ following_count }}</a></p>
         </div>

@@ -15,7 +15,7 @@
                 <li><a href="#">Opcja 1</a></li>
                 <li><a href="#">Opcja 2</a></li>
                 <li><a href="#">Opcja 3</a></li>
-                <li><a href="#">Opcja 4</a></li>
+                <li><a href="/{{ user.username }}/">Moje ogłoszenia</a></li>
                 <li><a href="/my_account/">Moje dane</a></li>
                 <li><a href="/logout/">Wyloguj się</a></li>
             {% else %}
@@ -31,7 +31,7 @@
             <div class="user-info">
                 Witaj, {{ user.username }}!
             </div>
-            {% else %}
+        {% else %}
             <div>
                 Aby móc korzystać z pełnych możliwości serwisu, proszę się zalogować
             </div>

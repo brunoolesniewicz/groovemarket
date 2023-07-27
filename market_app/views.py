@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth import authenticate, login, logout
 from .models import CustomUser, Listings, UsersFollows
-from django.views.generic import CreateView, UpdateView
+from django.views.generic import CreateView, UpdateView, ListView
 from .forms import CreateUserForm, LoginForm, UpdateUserDetailsForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.views import PasswordChangeView
@@ -97,3 +97,19 @@ class ChangePasswordView(LoginRequiredMixin, PasswordChangeView):
     success_url = "/my_account/"
 
 
+class UserListingsView(View):
+    def get(self, request, username):
+        user = CustomUser.objects.get(username=username)
+        listings = Listings.objects.filter(seller=user)
+        followers_count = UsersFollows.objects.filter(following=user).count()
+        following_count = UsersFollows.objects.filter(follower=user).count()
+
+        context = {
+            "listings": listings,
+            "user": user,
+            'user_listings_count': listings.count(),
+            'followers_count': followers_count,
+            'following_count': following_count
+        }
+
+        return render(request, "user_listings.html", context)
