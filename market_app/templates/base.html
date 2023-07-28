@@ -12,7 +12,7 @@
         <ul>
             <li><a href="/">Strona główna</a></li>
             {% if user.is_authenticated %}
-                <li><a href="#">Opcja 1</a></li>
+                <li><a href="/all_listings/">Wszystkie ogłoszenia</a></li>
                 <li><a href="#">Opcja 2</a></li>
                 <li><a href="#">Opcja 3</a></li>
                 <li><a href="/{{ user.username }}/">Moje ogłoszenia</a></li>
@@ -28,9 +28,9 @@
 <main>
     {% block content %}
         {% if user.is_authenticated %}
-            <div class="user-info">
+            <footer class="user-info">
                 Witaj, {{ user.username }}!
-            </div>
+            </footer>
         {% else %}
             <div>
                 Aby móc korzystać z pełnych możliwości serwisu, proszę się zalogować

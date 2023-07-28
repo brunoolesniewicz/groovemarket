@@ -7,6 +7,7 @@ from django.views.generic import CreateView, UpdateView, ListView
 from .forms import CreateUserForm, LoginForm, UpdateUserDetailsForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.views import PasswordChangeView
+from django.core.paginator import Paginator
 
 
 class LandingPageView(View):
@@ -113,3 +114,20 @@ class UserListingsView(View):
         }
 
         return render(request, "user_listings.html", context)
+
+
+class AllListingsView(View):
+    def get(self, request):
+        listings = Listings.objects.all()
+        paginator = Paginator(listings, 10)
+
+        page_number = request.GET.get('page')
+        page = paginator.get_page(page_number)
+
+        context = {
+            "listings": listings,
+            "listings_count": listings.count(),
+            "page": page
+        }
+
+        return render(request, "all_listings.html", context)

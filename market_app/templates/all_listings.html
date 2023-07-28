@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Liczba wszystkich ogłoszeń: {{ listings_count }}</h2>
+
+    <ul>
+        <div>
+            {% if page %}
+                <ul>
+                    {% for listing in page %}
+                        <p><strong>{{ listing.title }}</strong></p>
+                        <p><strong>Cena: {{ listing.price }}</strong></p>
+                        {% if listing.images %}
+                            <p><img src="{{ listing.images.0.url }}" alt="Image 1" width="200"></p>
+                        {% else %}
+                            <p><strong>Brak zdjęć</strong></p>
+                        {% endif %}
+                        <p>Sprzedający: <strong><a href="/{{ listing.seller }}/">{{ listing.seller }}</a></strong></p>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <h2>Brak ogłoszeń</h2>
+            {% endif %}
+        </div>
+    </ul>
+    <div>
+        <span>
+            {% if page.has_previous %}
+                <a href="?page=1">Pierwsza</a>
+                <a href="?page={{ page.previous_page_number }}">Poprzednia</a>
+            {% endif %}
+
+            <span>
+                Strona {{ page.number }} z {{ page.paginator.num_pages }}.
+            </span>
+
+            {% if page.has_next %}
+                <a href="?page={{ page.next_page_number }}">Następna</a>
+                <a href="?page={{ page.paginator.num_pages }}">Ostatnia</a>
+            {% endif %}
+        </span>
+    </div>
+{% endblock %}

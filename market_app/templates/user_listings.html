@@ -18,7 +18,7 @@
                 <ul>
                     {% for listing in listings %}
                         <p><strong>{{ listing.title }}</strong></p>
-                        <p><strong>{{ listing.price }}</strong></p>
+                        <p><strong>Cena: {{ listing.price }}</strong></p>
                         {% if listing.images %}
                             <p><img src="{{ listing.images.0.url }}" alt="Image 1" width="200"></p>
                         {% else %}
