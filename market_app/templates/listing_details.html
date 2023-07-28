@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div>
+        {% if listing.images %}
+            <div>
+                <h3>Zdjęcia:</h3>
+                {% for image in listing.images %}
+                    <img src="{{ image.url }}" alt="Image" width="200">
+                {% endfor %}
+            </div>
+        {% else %}
+            <p><strong>Brak zdjęć</strong></p>
+        {% endif %}
+
+        <h2>{{ listing.title }}</h2>
+        <p><strong>Opis:</strong> {{ listing.description }}</p>
+        <table>
+            <tr>
+                <td><strong>Sprzedający:</strong></td>
+                <td><a href="/user/{{ listing.seller.username }}/">{{ listing.seller }}</a></td>
+            </tr>
+            <tr>
+                <td><strong>Kategoria:</strong></td>
+                <td>{{ listing.get_category_display }}</td>
+            </tr>
+            <tr>
+                <td><strong>Gatunek:</strong></td>
+                <td>{{ listing.get_genre_display }}</td>
+            </tr>
+            <tr>
+                <td><strong>Cena:</strong></td>
+                <td>{{ listing.price }}</td>
+            </tr>
+            <tr>
+                <td><strong>Artysta:</strong></td>
+                <td>{{ listing.artist }}</td>
+            </tr>
+            <tr>
+                <td><strong>Stan:</strong></td>
+                <td>{{ listing.get_condition_display }}</td>
+            </tr>
+            <tr>
+                <td><strong>Data dodania:</strong></td>
+                <td>{{ listing.date_listed }}</td>
+            </tr>
+        </table>
+    </div>
+{% endblock %}

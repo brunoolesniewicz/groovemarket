@@ -131,3 +131,14 @@ class AllListingsView(View):
         }
 
         return render(request, "all_listings.html", context)
+
+
+class ListingDetailsView(View):
+    def get(self, request, slug):
+        listing = Listings.objects.get(slug=slug)
+
+        context = {
+            "listing": listing
+        }
+
+        return render(request, "listing_details.html", context)

@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from market_app.views import LandingPageView, LoginView, LogoutView, CreateUserView, MyAccountView, \
-    UpdateUserDetailsView, ChangePasswordView, UserListingsView, AllListingsView
+    UpdateUserDetailsView, ChangePasswordView, UserListingsView, AllListingsView, ListingDetailsView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -29,5 +29,6 @@ urlpatterns = [
     path('my_account/edit/', UpdateUserDetailsView.as_view()),
     path('my_account/password/', ChangePasswordView.as_view()),
     path('all_listings/', AllListingsView.as_view()),
-    path('<str:username>/', UserListingsView.as_view())
+    path('user/<str:username>/', UserListingsView.as_view()),
+    path('listing/<str:slug>/', ListingDetailsView.as_view())
 ]

@@ -8,14 +8,14 @@
             {% if page %}
                 <ul>
                     {% for listing in page %}
-                        <p><strong>{{ listing.title }}</strong></p>
+                        <p><strong><a href="/listing/{{ listing.slug }}/">{{ listing.title }}</a></strong></p>
                         <p><strong>Cena: {{ listing.price }}</strong></p>
                         {% if listing.images %}
-                            <p><img src="{{ listing.images.0.url }}" alt="Image 1" width="200"></p>
+                            <p><a href="/{{ listing.slug }}/"><img src="{{ listing.images.0.url }}" alt="Image 1" width="200"></a></p>
                         {% else %}
                             <p><strong>Brak zdjęć</strong></p>
                         {% endif %}
-                        <p>Sprzedający: <strong><a href="/{{ listing.seller }}/">{{ listing.seller }}</a></strong></p>
+                        <p>Sprzedający: <strong><a href="/user/{{ listing.seller }}/">{{ listing.seller }}</a></strong></p>
                     {% endfor %}
                 </ul>
             {% else %}

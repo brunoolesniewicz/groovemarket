@@ -17,7 +17,7 @@
                 <h2>Liczba ogłoszeń: {{ user_listings_count }}</h2>
                 <ul>
                     {% for listing in listings %}
-                        <p><strong>{{ listing.title }}</strong></p>
+                        <p><strong><a href="/listing/{{ listing.slug }}">{{ listing.title }}</a></strong></p>
                         <p><strong>Cena: {{ listing.price }}</strong></p>
                         {% if listing.images %}
                             <p><img src="{{ listing.images.0.url }}" alt="Image 1" width="200"></p>
