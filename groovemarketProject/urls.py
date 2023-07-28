@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 from market_app.views import LandingPageView, LoginView, LogoutView, CreateUserView, MyAccountView, \
     UpdateUserDetailsView, ChangePasswordView, UserListingsView, AllListingsView, ListingDetailsView
 
@@ -32,3 +34,6 @@ urlpatterns = [
     path('user/<str:username>/', UserListingsView.as_view()),
     path('listing/<str:slug>/', ListingDetailsView.as_view())
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
