@@ -2,12 +2,14 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
 from .models import CustomUser, Listings, UsersFollows
 from django.views.generic import CreateView, UpdateView
 from .forms import CreateUserForm, LoginForm, UpdateUserDetailsForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.views import PasswordChangeView
 from django.core.paginator import Paginator
+from django.http import Http404, HttpResponseForbidden
 
 
 class LandingPageView(View):
@@ -104,16 +106,33 @@ class UserListingsView(View):
         listings = Listings.objects.filter(seller=user)
         followers_count = UsersFollows.objects.filter(following=user).count()
         following_count = UsersFollows.objects.filter(follower=user).count()
+        user_followed = UsersFollows.objects.filter(follower=request.user, following=user).exists()
 
         context = {
             "listings": listings,
             "user": user,
             'user_listings_count': listings.count(),
             'followers_count': followers_count,
-            'following_count': following_count
+            'following_count': following_count,
+            'user_followed': user_followed
         }
 
         return render(request, "user_listings.html", context)
+
+    def post(self, request, username):
+        user_to_follow = CustomUser.objects.get(username=username)
+
+        if request.user == user_to_follow:
+            return HttpResponseForbidden("Nie możesz obserwować samego siebie.")
+
+        user_followed = UsersFollows.objects.filter(follower=request.user, following=user_to_follow).exists()
+
+        if user_followed:
+            UsersFollows.objects.filter(follower=request.user, following=user_to_follow).delete()
+        else:
+            UsersFollows.objects.create(follower=request.user, following=user_to_follow)
+
+        return redirect(f'/user/{user_to_follow.username}/')
 
 
 class AllListingsView(View):
