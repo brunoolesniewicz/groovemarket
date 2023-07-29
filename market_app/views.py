@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth import authenticate, login, logout
 from .models import CustomUser, Listings, UsersFollows
-from django.views.generic import CreateView, UpdateView, ListView
+from django.views.generic import CreateView, UpdateView
 from .forms import CreateUserForm, LoginForm, UpdateUserDetailsForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.views import PasswordChangeView
@@ -142,3 +142,27 @@ class ListingDetailsView(View):
         }
 
         return render(request, "listing_details.html", context)
+
+
+class UserFollowersView(View):
+    def get(self, request, username):
+        user = CustomUser.objects.get(username=username)
+        followers = UsersFollows.objects.filter(following=user)
+
+        context = {
+            "followers": followers
+        }
+
+        return render(request, "followers_list.html", context)
+
+
+class UserFolloweringView(View):
+    def get(self, request, username):
+        user = CustomUser.objects.get(username=username)
+        following = UsersFollows.objects.filter(follower=user)
+
+        context = {
+            "following": following
+        }
+
+        return render(request, "following_list.html", context)

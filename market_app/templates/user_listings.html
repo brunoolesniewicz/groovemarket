@@ -8,22 +8,24 @@
             <p><strong>Bio:</strong> {{ user.bio }}</p>
             <p><strong>Data dołączenia:</strong> {{ user.date_joined }}</p>
             <p><strong>Obserwujący:</strong><a
-                    href="/{{ user.username }}/followers/"> {{ followers_count }}</a></p>
+                    href="/user/{{ user.username }}/followers/"> {{ followers_count }}</a></p>
             <p><strong>Obserwowani:</strong><a
-                    href="/{{ user.username }}/following/"> {{ following_count }}</a></p>
+                    href="/user/{{ user.username }}/following/"> {{ following_count }}</a></p>
         </div>
         <div>
             {% if listings %}
                 <h2>Liczba ogłoszeń: {{ user_listings_count }}</h2>
                 <ul>
                     {% for listing in listings %}
-                        <p><strong><a href="/listing/{{ listing.slug }}">{{ listing.title }}</a></strong></p>
-                        <p><strong>Cena: {{ listing.price }}</strong></p>
-                        {% if listing.images %}
-                            <p><img src="{{ listing.images.0.url }}" alt="Image 1" width="200"></p>
-                        {% else %}
-                            <p><strong>Brak zdjęć</strong></p>
-                        {% endif %}
+                        <li>
+                            <p><strong><a href="/listing/{{ listing.slug }}">{{ listing.title }}</a></strong></p>
+                            <p><strong>Cena: {{ listing.price }}</strong></p>
+                            {% if listing.images %}
+                                <p><img src="{{ listing.images.0.url }}" alt="Image 1" width="200"></p>
+                            {% else %}
+                                <p><strong>Brak zdjęć</strong></p>
+                            {% endif %}
+                        </li>
                     {% endfor %}
                 </ul>
             {% else %}

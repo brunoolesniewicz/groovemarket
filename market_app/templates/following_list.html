@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% if following %}
+        <h2>Obserwowani użytkownika {{ user.username }}</h2>
+        <ul>
+            {% for following in following %}
+                <li>
+                    <a href="/user/{{ following.following.username }}/"><img src="{{ following.following.avatar.url }}" alt="{{ following.following.username }}" width="50"></a>
+                    <a href="/user/{{ following.following.username }}/">{{ following.following.username }}</a>
+                    <span>Data zaobserwowania: {{ following.date_of_follow }}</span>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <h2>Brak obserwowanych</h2>
+    {% endif %}
+{% endblock %}

@@ -8,6 +8,7 @@
             {% if page %}
                 <ul>
                     {% for listing in page %}
+                        <li>
                         <p><strong><a href="/listing/{{ listing.slug }}/">{{ listing.title }}</a></strong></p>
                         <p><strong>Cena: {{ listing.price }}</strong></p>
                         {% if listing.images %}
@@ -16,6 +17,7 @@
                             <p><strong>Brak zdjęć</strong></p>
                         {% endif %}
                         <p>Sprzedający: <strong><a href="/user/{{ listing.seller }}/">{{ listing.seller }}</a></strong></p>
+                        </li>
                     {% endfor %}
                 </ul>
             {% else %}
