@@ -1,5 +1,5 @@
 from django import forms
-from .models import CustomUser
+from .models import CustomUser, Listings
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.validators import EmailValidator
 
@@ -26,3 +26,10 @@ class UpdateUserDetailsForm(forms.ModelForm):
     class Meta:
         model = CustomUser
         fields = ['first_name', 'last_name', 'email', 'avatar', 'bio']
+
+
+class CreateListingForm(forms.ModelForm):
+    class Meta:
+        model = Listings
+        fields = ['image_1', 'image_2', 'image_3', 'title', 'description', 'category', 'artist', 'genre', 'condition',
+                  'price']

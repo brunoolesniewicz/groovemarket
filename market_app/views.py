@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from .models import CustomUser, Listings, UsersFollows
 from django.views.generic import CreateView, UpdateView
-from .forms import CreateUserForm, LoginForm, UpdateUserDetailsForm
+from .forms import CreateUserForm, LoginForm, UpdateUserDetailsForm, CreateListingForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.views import PasswordChangeView
 from django.core.paginator import Paginator
@@ -163,9 +163,18 @@ class AllListingsView(View):
 class ListingDetailsView(View):
     def get(self, request, slug):
         listing = Listings.objects.get(slug=slug)
+        images_list = []
+
+        if listing.image_1:
+            images_list.append(listing.image_1)
+        if listing.image_2:
+            images_list.append(listing.image_2)
+        if listing.image_3:
+            images_list.append(listing.image_3)
 
         context = {
-            "listing": listing
+            "listing": listing,
+            "images_list": images_list
         }
 
         return render(request, "listing_details.html", context)
@@ -193,3 +202,14 @@ class UserFolloweringView(View):
         }
 
         return render(request, "following_list.html", context)
+
+
+class CreateListingView(CreateView):
+    form_class = CreateListingForm
+    template_name = 'create_listing_form.html'
+    model = Listings
+    success_url = "/all_listings/"
+
+    def form_valid(self, form):
+        form.instance.seller = self.request.user
+        return super().form_valid(form)

@@ -11,10 +11,10 @@
                         <li>
                         <p><strong><a href="/listing/{{ listing.slug }}/">{{ listing.title }}</a></strong></p>
                         <p><strong>Cena: {{ listing.price }}</strong></p>
-                        {% if listing.images %}
-                            <p><a href="/{{ listing.slug }}/"><img src="{{ listing.images.0.url }}" alt="Image 1" width="200"></a></p>
+                        {% if listing.image_1 %}
+                            <p><a href="/listing/{{ listing.slug }}/"><img src="{{ listing.image_1.url }}" alt="Image 1" width="200"></a></p>
                         {% else %}
-                            <p><strong>Brak zdjęć</strong></p>
+                            <p><strong>Brak zdjęcia poglądowego</strong></p>
                         {% endif %}
                         <p>Sprzedający: <strong><a href="/user/{{ listing.seller }}/">{{ listing.seller }}</a></strong></p>
                         </li>
