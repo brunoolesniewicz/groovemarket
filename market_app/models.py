@@ -66,9 +66,9 @@ class Listings(models.Model):
     likes = models.ManyToManyField(CustomUser, blank=True, through="UsersLikes", related_name="liked_by")
     slug = AutoSlugField(populate_from="title", unique=True)
     sold = models.BooleanField(default=False, blank=False)
-    image_1 = models.ImageField(upload_to=f'listing_images/{slug}/', blank=True, null=True)
-    image_2 = models.ImageField(upload_to=f'listing_images/{slug}/', blank=True, null=True)
-    image_3 = models.ImageField(upload_to=f'listing_images/{slug}', blank=True, null=True)
+    image_1 = models.ImageField(upload_to=f'listing_images/', blank=True, null=True)
+    image_2 = models.ImageField(upload_to=f'listing_images/', blank=True, null=True)
+    image_3 = models.ImageField(upload_to=f'listing_images/', blank=True, null=True)
 
     def __str__(self):
         return self.title
