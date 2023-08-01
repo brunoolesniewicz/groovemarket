@@ -84,6 +84,14 @@ class MyAccountView(LoginRequiredMixin, View):
 
         return render(request, "my_account.html", context)
 
+    def post(self, request):
+        if "delete_avatar" in request.POST:
+            user = request.user
+            user.avatar = "default_avatar.jpg"
+            user.save()
+            messages.success(request, "Avatar został usunięty.")
+        return redirect("/my_account/")
+
 
 class UpdateUserDetailsView(LoginRequiredMixin, UpdateView):
     form_class = UpdateUserDetailsForm

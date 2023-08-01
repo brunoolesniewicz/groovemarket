@@ -6,6 +6,13 @@
     </style>
 </head>
 <body>
+<div class="notification">
+    {% if messages %}
+        {% for message in messages %}
+            <div>{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+</div>
 <h1 class="logo">GrooveMarket</h1>
 <header>
     <nav>
