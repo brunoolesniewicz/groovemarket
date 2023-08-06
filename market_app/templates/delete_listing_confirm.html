@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Czy na pewno chcesz usunąć ogłoszenie "{{ object.title }}"?</h2>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Tak, usuń</button>
+        <a href="/my_account/">Anuluj</a>
+    </form>
+{% endblock %}

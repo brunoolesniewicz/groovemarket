@@ -1,10 +1,10 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from .models import CustomUser, Listings, UsersFollows
-from django.views.generic import CreateView, UpdateView
+from django.views.generic import CreateView, UpdateView, DeleteView
 from .forms import CreateUserForm, LoginForm, UpdateUserDetailsForm, CreateListingForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.views import PasswordChangeView
@@ -163,6 +163,7 @@ class AllListingsView(View):
 class ListingDetailsView(View):
     def get(self, request, slug):
         listing = Listings.objects.get(slug=slug)
+        user = request.user
         images_list = []
 
         if listing.image_1:
@@ -174,7 +175,8 @@ class ListingDetailsView(View):
 
         context = {
             "listing": listing,
-            "images_list": images_list
+            "images_list": images_list,
+            "user": user
         }
 
         return render(request, "listing_details.html", context)
@@ -204,12 +206,66 @@ class UserFolloweringView(View):
         return render(request, "following_list.html", context)
 
 
-class CreateListingView(CreateView):
+class CreateListingView(LoginRequiredMixin, CreateView):
     form_class = CreateListingForm
     template_name = 'create_listing_form.html'
     model = Listings
-    success_url = "/all_listings/"
 
     def form_valid(self, form):
         form.instance.seller = self.request.user
         return super().form_valid(form)
+
+    def get_success_url(self):
+        return f"/listing/{self.object.slug}"
+
+
+class UpdateListingView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Listings
+    form_class = CreateListingForm
+    template_name = "edit_listing_form.html"
+
+    def test_func(self):
+        listing = self.get_object()
+        return self.request.user == listing.seller
+
+    def get_success_url(self):
+        return f"/listing/{self.object.slug}/"
+
+    def form_valid(self, form):
+        form.instance.slug = form.instance.title
+        return super().form_valid(form)
+
+
+class DeleteListingView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Listings
+    template_name = "delete_listing_confirm.html"
+
+    def test_func(self):
+        listing = self.get_object()
+        return self.request.user == listing.seller
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.filter(seller=self.request.user)
+
+    def get_success_url(self):
+        return f"/user/{self.request.user.username}/"
+
+
+class DeleteAccountView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = CustomUser
+    template_name = "delete_account_confirm.html"
+    success_url = "/"
+
+    def test_func(self):
+        user = self.get_object()
+        return self.request.user == user
+
+    def delete(self, request, *args, **kwargs):
+        user = self.request.user
+        user.delete()
+
+        messages.success(request, "Twoje konto zostało pomyślnie usunięte.")
+        return super().delete(request, *args, **kwargs)
+
+

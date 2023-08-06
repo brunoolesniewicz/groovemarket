@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Czy na pewno chcesz usunąć swoje konto?</h2>
+    <p>To spowoduje trwałe usunięcie Twojego konta i wszystkich powiązanych danych.</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Tak, usuń konto</button>
+        <a href="/my_account/">Anuluj</a>
+    </form>
+{% endblock %}

@@ -44,4 +44,8 @@
             </tr>
         </table>
     </div>
+    {% if user.is_authenticated and user == listing.seller %}
+        <a href="/listing/{{ listing.slug }}/edit/">Edytuj ogłoszenie</a>
+        <a href="/listing/{{ listing.slug }}/delete/">Usuń ogłoszenie</a>
+    {% endif %}
 {% endblock %}
