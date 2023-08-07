@@ -10,6 +10,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.views import PasswordChangeView
 from django.core.paginator import Paginator
 from django.http import Http404, HttpResponseForbidden
+from django.db.models import Q
 
 
 class LandingPageView(View):
@@ -159,16 +160,50 @@ class UserListingsView(View):
 
 class AllListingsView(View):
     def get(self, request):
-        listings = Listings.objects.all()
-        paginator = Paginator(listings, 10)
+        listings = Listings.objects.all().order_by('-date_listed')
 
+        search_query = request.GET.get("q")
+        if search_query:
+            listings = listings.filter(Q(title__icontains=search_query) | Q(artist__icontains=search_query))
+
+        category_filter = request.GET.get('category')
+        genre_filter = request.GET.get('genre')
+        condition_filter = request.GET.get('condition')
+        min_price_filter = request.GET.get('min_price')
+        max_price_filter = request.GET.get('max_price')
+
+        if category_filter:
+            listings = listings.filter(category=category_filter)
+        if genre_filter:
+            listings = listings.filter(genre=genre_filter)
+        if condition_filter:
+            listings = listings.filter(condition=condition_filter)
+        if min_price_filter:
+            listings = listings.filter(price__gte=min_price_filter)
+        if max_price_filter:
+            listings = listings.filter(price__lte=max_price_filter)
+
+        sort_option = request.GET.get('sort')
+        if sort_option == 'newest':
+            listings = listings.order_by('-date_listed')
+        elif sort_option == 'oldest':
+            listings = listings.order_by('date_listed')
+        elif sort_option == 'cheapest':
+            listings = listings.order_by('price')
+        elif sort_option == 'expensive':
+            listings = listings.order_by('-price')
+
+        paginator = Paginator(listings, 10)
         page_number = request.GET.get('page')
         page = paginator.get_page(page_number)
 
         context = {
             "listings": listings,
-            "listings_count": listings.count(),
-            "page": page
+            "listings_count": Listings.objects.all().count(),
+            "page": page,
+            "categories": Listings.CATEGORIES,
+            "genres": Listings.GENRES,
+            "conditions": Listings.CONDITIONS
         }
 
         return render(request, "all_listings.html", context)

@@ -3,25 +3,64 @@
 {% block content %}
     <h2>Liczba wszystkich ogłoszeń: {{ listings_count }}</h2>
 
+    <form method="GET">
+        <input type="text" name="q" placeholder="Szukaj...">
+        <select name="category">
+            <option value="" selected>Kategoria</option>
+            {% for category, display_name in categories %}
+                <option value="{{ category }}">{{ display_name }}</option>
+            {% endfor %}
+        </select>
+
+        <select name="genre">
+            <option value="" selected>Gatunek</option>
+            {% for genre, display_name in genres %}
+                <option value="{{ genre }}">{{ display_name }}</option>
+            {% endfor %}
+        </select>
+
+        <select name="condition">
+            <option value="" selected>Stan</option>
+            {% for condition, display_name in conditions %}
+                <option value="{{ condition }}">{{ display_name }}</option>
+            {% endfor %}
+        </select>
+
+        <input type="number" name="min_price" placeholder="Minimalna cena">
+        <input type="number" name="max_price" placeholder="Maksymalna cena">
+
+        <label for="sort-select">Sortuj według:</label>
+        <select id="sort-select" name="sort">
+            <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Najnowsze</option>
+            <option value="oldest" {% if current_sort == 'oldest' %}selected{% endif %}>Najstarsze</option>
+            <option value="cheapest" {% if current_sort == 'cheapest' %}selected{% endif %}>Najtańsze</option>
+            <option value="expensive" {% if current_sort == 'expensive' %}selected{% endif %}>Najdroższe</option>
+        </select>
+
+        <button type="submit">Filtruj</button>
+    </form>
+
     <ul>
         <div>
             {% if page %}
                 <ul>
                     {% for listing in page %}
                         <li>
-                        <p><strong><a href="/listing/{{ listing.slug }}/">{{ listing.title }}</a></strong></p>
-                        <p><strong>Cena: {{ listing.price }}</strong></p>
-                        {% if listing.image_1 %}
-                            <p><a href="/listing/{{ listing.slug }}/"><img src="{{ listing.image_1.url }}" alt="Image 1" width="200"></a></p>
-                        {% else %}
-                            <p><strong>Brak zdjęcia poglądowego</strong></p>
-                        {% endif %}
-                        <p>Sprzedający: <strong><a href="/user/{{ listing.seller }}/">{{ listing.seller }}</a></strong></p>
+                            <p><strong><a href="/listing/{{ listing.slug }}/">{{ listing.title }}</a></strong></p>
+                            <p><strong>Cena: {{ listing.price }}</strong></p>
+                            {% if listing.image_1 %}
+                                <p><a href="/listing/{{ listing.slug }}/"><img src="{{ listing.image_1.url }}"
+                                                                               alt="Image 1" width="200"></a></p>
+                            {% else %}
+                                <p><strong>Brak zdjęcia poglądowego</strong></p>
+                            {% endif %}
+                            <p>Sprzedający: <strong><a
+                                    href="/user/{{ listing.seller }}/">{{ listing.seller }}</a></strong></p>
                         </li>
                     {% endfor %}
                 </ul>
             {% else %}
-                <h2>Brak ogłoszeń</h2>
+                <h2>Brak ogłoszeń spełniających kryteria wyszukiwania</h2>
             {% endif %}
         </div>
     </ul>
