@@ -14,10 +14,24 @@ from django.http import Http404, HttpResponseForbidden
 
 class LandingPageView(View):
     def get(self, request):
-        context = {
-            "logged_in": request.user.is_authenticated
-        }
+        user = request.user
+        page = None
 
+        if user.is_authenticated:
+            following_users = UsersFollows.objects.filter(follower=user).values_list('following', flat=True)
+
+            listings = Listings.objects.filter(seller__in=following_users).order_by('-date_listed')
+
+            paginator = Paginator(listings, 10)
+            page_number = request.GET.get('page')
+            page = paginator.get_page(page_number)
+        else:
+            listings = None
+
+        context = {
+            "listings": listings,
+            "page": page
+        }
         return render(request, "base.html", context)
 
 
@@ -267,5 +281,3 @@ class DeleteAccountView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
         messages.success(request, "Twoje konto zostało pomyślnie usunięte.")
         return super().delete(request, *args, **kwargs)
-
-
