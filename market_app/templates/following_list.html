@@ -6,7 +6,9 @@
         <ul>
             {% for following in following %}
                 <li>
-                    <a href="/user/{{ following.following.username }}/"><img src="{{ following.following.avatar.url }}" alt="{{ following.following.username }}" width="50"></a>
+                    <a href="/user/{{ following.following.username }}/"><img src="{{ following.following.avatar.url }}"
+                                                                             alt="{{ following.following.username }}"
+                                                                             width="20"></a>
                     <a href="/user/{{ following.following.username }}/">{{ following.following.username }}</a>
                     <span>Data zaobserwowania: {{ following.date_of_follow }}</span>
                 </li>

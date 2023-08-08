@@ -16,7 +16,9 @@
         <table>
             <tr>
                 <td><strong>Sprzedający:</strong></td>
-                <td><a href="/user/{{ listing.seller.username }}/">{{ listing.seller }}</a></td>
+                <td><a href="/user/{{ listing.seller.username }}/"><img src="{{ listing.seller.avatar.url }}"
+                                                                        alt="Avatar" width="20">{{ listing.seller }}</a>
+                </td>
             </tr>
             <tr>
                 <td><strong>Kategoria:</strong></td>
@@ -45,7 +47,16 @@
         </table>
     </div>
     {% if user.is_authenticated and user == listing.seller %}
+        <h3>Liczba ofert: {{ offers_count }}</h3>
         <a href="/listing/{{ listing.slug }}/edit/">Edytuj ogłoszenie</a>
         <a href="/listing/{{ listing.slug }}/delete/">Usuń ogłoszenie</a>
+    {% endif %}
+    {% if user.is_authenticated and user != listing.seller %}
+        <h2>Wyślij ofertę:</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ offer_form.as_p }}
+            <button type="submit">Wyślij ofertę</button>
+        </form>
     {% endif %}
 {% endblock %}

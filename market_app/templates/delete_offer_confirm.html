@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Czy na pewno chcesz usunąć ofertę?</h2>
+    <p>Ogłoszenie: {{ object.listing.title }}</p>
+    <p>Cena początkowa: {{ object.listing.price }}</p>
+    <p>Oferta: {{ object.price }}</p>
+    <p>Od: <img src="{{ object.user.avatar.url }}" alt="Avatar" width="20"> {{ object.user }}</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Tak, usuń ofertę</button>
+        <a href="/my_offers/">Anuluj</a>
+    </form>
+{% endblock %}

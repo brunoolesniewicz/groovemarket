@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Otrzymane oferty</h2>
+    <ul>
+        {% for item in listings_with_offers %}
+            <li>
+                <h3><a href="/listing/{{ item.listing.slug }}/">{{ item.listing.title }}</a></h3>
+                {% if item.listing.image_1 %}
+                    <p><a href="/listing/{{ item.listing.slug }}/"><img src="{{ item.listing.image_1.url }}"
+                                                                        alt="Image 1" width="200"></a></p>
+                {% else %}
+                    <p><strong>Brak zdjęcia poglądowego</strong></p>
+                {% endif %}
+                <p>Cena ogłoszenia: {{ item.listing.price }}</p>
+                {% if item.offers %}
+                    <h4>Oferty:</h4>
+                    <ul>
+                        {% for offer in item.offers %}
+                            <li>{{ offer.price }} od <a href="/user/{{ offer.user.username }}/"><img
+                                    src="{{ offer.user.avatar.url }}" alt="Avatar" width="20">{{ offer.user.username }}
+                            </a>(<a
+                                    href="/my_offers/{{ offer.id }}/delete/">Usuń ofertę</a>)
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <h4>Brak ofert</h4>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

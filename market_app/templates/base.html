@@ -13,16 +13,17 @@
         {% endfor %}
     {% endif %}
 </div>
-<h1 class="logo">GrooveMarket</h1>
+<h1 class="logo"><a href="/">GrooveMarket</a></h1>
+<h4>Zalogowany użytkownik: {{ request.user.username }}</h4>
 <header>
     <nav>
         <ul>
             <li><a href="/">Strona główna</a></li>
             {% if user.is_authenticated %}
                 <li><a href="/all_listings/">Wszystkie ogłoszenia</a></li>
-                <li><a href="#">Opcja 2</a></li>
                 <li><a href="/add_listing/">Dodaj ogłoszenie</a></li>
                 <li><a href="/user/{{ request.user.username }}/">Moje ogłoszenia</a></li>
+                <li><a href="/my_offers/">Otrzymane oferty</a></li>
                 <li><a href="/my_account/">Moje dane</a></li>
                 <li><a href="/logout/">Wyloguj się</a></li>
             {% else %}
@@ -53,7 +54,9 @@
                                         <p><strong>Brak zdjęcia poglądowego</strong></p>
                                     {% endif %}
                                     <p>Sprzedający: <strong><a
-                                            href="/user/{{ listing.seller }}/">{{ listing.seller }}</a></strong></p>
+                                            href="/user/{{ listing.seller }}/"><img
+                                            src="{{ listing.seller.avatar.url }}" alt="Avatar"
+                                            width="20">{{ listing.seller }}</a></strong></p>
                                 </li>
                             {% endfor %}
                         </ul>
@@ -79,9 +82,6 @@
             {% endif %}
         </span>
             </div>
-            <footer>
-                <h3>Zalogowany: {{ user.username }}</h3>
-            </footer>
 
         {% else %}
             <div>

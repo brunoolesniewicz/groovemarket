@@ -20,7 +20,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from market_app.views import LandingPageView, LoginView, LogoutView, CreateUserView, MyAccountView, \
     UpdateUserDetailsView, ChangePasswordView, UserListingsView, AllListingsView, ListingDetailsView, \
-    UserFollowersView, UserFolloweringView, CreateListingView, UpdateListingView, DeleteListingView, DeleteAccountView
+    UserFollowersView, UserFolloweringView, CreateListingView, UpdateListingView, DeleteListingView,  \
+    DeleteAccountView, UserOffersView, DeleteOfferView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -39,7 +40,9 @@ urlpatterns = [
     path('add_listing/', CreateListingView.as_view()),
     path('listing/<str:slug>/edit/', UpdateListingView.as_view()),
     path('listing/<str:slug>/delete/', DeleteListingView.as_view()),
-    path('my_account/<int:pk>/delete/', DeleteAccountView.as_view())
+    path('my_account/<int:pk>/delete/', DeleteAccountView.as_view()),
+    path('my_offers/', UserOffersView.as_view()),
+    path('my_offers/<int:pk>/delete/', DeleteOfferView.as_view())
 ]
 
 if settings.DEBUG:

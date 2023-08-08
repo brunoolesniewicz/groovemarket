@@ -3,9 +3,9 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .models import CustomUser, Listings, UsersFollows
+from .models import CustomUser, Listings, UsersFollows, Offers
 from django.views.generic import CreateView, UpdateView, DeleteView
-from .forms import CreateUserForm, LoginForm, UpdateUserDetailsForm, CreateListingForm
+from .forms import CreateUserForm, LoginForm, UpdateUserDetailsForm, CreateListingForm, CreateOfferForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.views import PasswordChangeView
 from django.core.paginator import Paginator
@@ -222,10 +222,44 @@ class ListingDetailsView(View):
         if listing.image_3:
             images_list.append(listing.image_3)
 
+        offer_form = None
+        if user.is_authenticated and user != listing.seller:
+            initial_data = {
+                'user': user,
+                'listing': listing
+            }
+            offer_form = CreateOfferForm(initial=initial_data)
+
         context = {
             "listing": listing,
             "images_list": images_list,
-            "user": user
+            "user": user,
+            "offer_form": offer_form,
+            "offers_count": Offers.objects.filter(listing_id=listing.id).count()
+        }
+
+        return render(request, "listing_details.html", context)
+
+    def post(self, request, slug):
+        listing = Listings.objects.get(slug=slug)
+        user = request.user
+        offer_form = None
+
+        if user.is_authenticated and user != listing.seller:
+            form = CreateOfferForm(request.POST)
+            if form.is_valid():
+                offer = form.save(commit=False)
+                offer.user = user
+                offer.listing = listing
+                offer.save()
+                return redirect(request.path_info)
+            else:
+                offer_form = form
+
+        context = {
+            "listing": listing,
+            "user": user,
+            "offer_form": offer_form
         }
 
         return render(request, "listing_details.html", context)
@@ -315,4 +349,39 @@ class DeleteAccountView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         user.delete()
 
         messages.success(request, "Twoje konto zostało pomyślnie usunięte.")
+        return super().delete(request, *args, **kwargs)
+
+
+class UserOffersView(LoginRequiredMixin, View):
+    def get(self, request):
+        user = request.user
+        listings_with_offers = []
+
+        for listing in Listings.objects.filter(seller=user):
+            offers = Offers.objects.filter(listing=listing)
+            listings_with_offers.append({
+                'listing': listing,
+                'offers': offers
+            })
+
+        context = {
+            'listings_with_offers': listings_with_offers
+        }
+
+        return render(request, 'my_offers.html', context)
+
+
+class DeleteOfferView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Offers
+    template_name = "delete_offer_confirm.html"
+    success_url = "/my_offers/"
+
+    def test_func(self):
+        return self.request.user == self.get_object().listing.seller
+
+    def delete(self, request, *args, **kwargs):
+        offer = self.get_object()
+        offer.delete()
+
+        messages.success(request, "Oferta została usunięta.")
         return super().delete(request, *args, **kwargs)

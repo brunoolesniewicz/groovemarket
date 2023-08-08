@@ -1,5 +1,5 @@
 from django import forms
-from .models import CustomUser, Listings
+from .models import CustomUser, Listings, Offers
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.validators import EmailValidator
 
@@ -33,3 +33,13 @@ class CreateListingForm(forms.ModelForm):
         model = Listings
         fields = ['image_1', 'image_2', 'image_3', 'title', 'description', 'category', 'artist', 'genre', 'condition',
                   'price']
+
+
+class CreateOfferForm(forms.ModelForm):
+    class Meta:
+        model = Offers
+        fields = ['price', 'user', 'listing']
+        widgets = {
+            'user': forms.HiddenInput(),
+            'listing': forms.HiddenInput()
+        }
