@@ -58,5 +58,16 @@
             {{ offer_form.as_p }}
             <button type="submit">Wyślij ofertę</button>
         </form>
+        {% if is_liked %}
+            <form method="post" action="/listing/{{ listing.slug }}/unlike/">
+                {% csrf_token %}
+                <button type="submit">Usuń z listy życzeń</button>
+            </form>
+        {% else %}
+            <form method="post" action="/listing/{{ listing.slug }}/like/">
+                {% csrf_token %}
+                <button type="submit">Dodaj do listy życzeń</button>
+            </form>
+        {% endif %}
     {% endif %}
 {% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    {% if liked_listings %}
+        <h2>Polubione ogłoszenia:</h2>
+        <ul>
+            {% for listing in liked_listings %}
+                <li>
+                    <p><strong><a href="/listing/{{ listing.slug }}/">{{ listing.title }}</a></strong></p>
+                    {% if listing.image_1 %}
+                        <p><a href="/listing/{{ listing.slug }}/"><img src="{{ listing.image_1.url }}"
+                                                                       alt="Image 1" width="200"></a></p>
+                    {% else %}
+                        <p><strong>Brak zdjęcia poglądowego</strong></p>
+                    {% endif %}
+                    <p><strong>Cena: {{ listing.price }}</strong></p>
+                    <p>Sprzedający: <strong><a
+                            href="/user/{{ listing.seller }}/"><img src="{{ listing.seller.avatar.url }}" alt="Avatar"
+                                                                    width="20"> {{ listing.seller }}</a></strong></p>
+                    <form method="post" action="/listing/{{ listing.slug }}/unlike/">
+                        {% csrf_token %}
+                        <button type="submit">Usuń z listy życzeń</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <h2>Brak polubionych ogłoszeń</h2>
+    {% endif %}
+
+{% endblock %}

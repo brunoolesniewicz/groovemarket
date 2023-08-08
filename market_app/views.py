@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .models import CustomUser, Listings, UsersFollows, Offers
+from .models import CustomUser, Listings, UsersFollows, Offers, UsersLikes
 from django.views.generic import CreateView, UpdateView, DeleteView
 from .forms import CreateUserForm, LoginForm, UpdateUserDetailsForm, CreateListingForm, CreateOfferForm
 from django.contrib.auth.forms import PasswordChangeForm
@@ -213,6 +213,7 @@ class ListingDetailsView(View):
     def get(self, request, slug):
         listing = Listings.objects.get(slug=slug)
         user = request.user
+        is_liked = UsersLikes.objects.filter(user=user, listing_id=listing.id).exists()
         images_list = []
 
         if listing.image_1:
@@ -235,7 +236,8 @@ class ListingDetailsView(View):
             "images_list": images_list,
             "user": user,
             "offer_form": offer_form,
-            "offers_count": Offers.objects.filter(listing_id=listing.id).count()
+            "offers_count": Offers.objects.filter(listing_id=listing.id).count(),
+            "is_liked": is_liked
         }
 
         return render(request, "listing_details.html", context)
@@ -385,3 +387,38 @@ class DeleteOfferView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
         messages.success(request, "Oferta została usunięta.")
         return super().delete(request, *args, **kwargs)
+
+
+class LikeView(View):
+    def post(self, request, slug):
+        listing = Listings.objects.get(slug=slug)
+        user = request.user
+
+        if not UsersLikes.objects.filter(user=user, listing=listing).exists():
+            UsersLikes.objects.create(user=user, listing=listing)
+
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+
+
+class UnlikeView(View):
+    def post(self, request, slug):
+        listing = Listings.objects.get(slug=slug)
+        user = request.user
+
+        if UsersLikes.objects.filter(user=user, listing=listing).exists():
+            UsersLikes.objects.filter(user=user, listing=listing).delete()
+
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+
+
+class WishlistView(LoginRequiredMixin, View):
+    def get(self, request):
+        user = request.user
+        user_likes = UsersLikes.objects.filter(user=user)
+        liked_listings = [like.listing for like in user_likes]
+
+        context = {
+            "liked_listings": liked_listings
+        }
+
+        return render(request, "wishlist.html", context)
