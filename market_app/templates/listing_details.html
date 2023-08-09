@@ -44,10 +44,13 @@
                 <td><strong>Data dodania:</strong></td>
                 <td>{{ listing.date_listed }}</td>
             </tr>
+                <td><strong>Liczba polubień:</strong></td>
+                <td>{{ listing_likes_count }}</td>
         </table>
     </div>
     {% if user.is_authenticated and user == listing.seller %}
         <h3>Liczba ofert: {{ offers_count }}</h3>
+        <a href="/listing/{{ listing.slug }}/likes/">Zobacz zainteresowanych</a>
         <a href="/listing/{{ listing.slug }}/edit/">Edytuj ogłoszenie</a>
         <a href="/listing/{{ listing.slug }}/delete/">Usuń ogłoszenie</a>
     {% endif %}

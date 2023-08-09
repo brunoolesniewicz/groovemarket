@@ -164,7 +164,7 @@ class AllListingsView(View):
 
         search_query = request.GET.get("q")
         if search_query:
-            listings = listings.filter(Q(title__icontains=search_query) | Q(artist__icontains=search_query))
+            listings = listings.filter(Q(title__icontains=search_query) | Q(artist__icontains=search_query) | Q(seller__username__icontains=search_query))
 
         category_filter = request.GET.get('category')
         genre_filter = request.GET.get('genre')
@@ -212,6 +212,7 @@ class AllListingsView(View):
 class ListingDetailsView(View):
     def get(self, request, slug):
         listing = Listings.objects.get(slug=slug)
+        listing_likes_count = listing.likes.count()
         user = request.user
         is_liked = UsersLikes.objects.filter(user=user, listing_id=listing.id).exists()
         images_list = []
@@ -237,7 +238,8 @@ class ListingDetailsView(View):
             "user": user,
             "offer_form": offer_form,
             "offers_count": Offers.objects.filter(listing_id=listing.id).count(),
-            "is_liked": is_liked
+            "is_liked": is_liked,
+            "listing_likes_count": listing_likes_count
         }
 
         return render(request, "listing_details.html", context)
@@ -254,6 +256,8 @@ class ListingDetailsView(View):
                 offer.user = user
                 offer.listing = listing
                 offer.save()
+                messages.success(request, "Oferta została wysłana!")
+
                 return redirect(request.path_info)
             else:
                 offer_form = form
@@ -422,3 +426,20 @@ class WishlistView(LoginRequiredMixin, View):
         }
 
         return render(request, "wishlist.html", context)
+
+
+class ListingLikesView(LoginRequiredMixin, UserPassesTestMixin, View):
+    def test_func(self):
+        listing = Listings.objects.get(slug=self.kwargs['slug'])
+        return self.request.user == listing.seller
+
+    def get(self, request, slug):
+        listing = Listings.objects.get(slug=slug)
+        likes = UsersLikes.objects.filter(listing=listing)
+
+        context = {
+            "listing": listing,
+            "likes": likes
+        }
+
+        return render(request, "listing_likes.html", context)

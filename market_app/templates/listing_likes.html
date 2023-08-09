@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <img src="{{ listing.image_1.url }}" alt="Image1" width="350">
+    <h2>{{ listing.title }}</h2>
+    <h3>Zainterseowani użytkownicy:</h3>
+    {% if likes %}
+        <ul>
+            {% for like in likes %}
+                <li><a href="/user/{{ like.user.username }}/"><img src="{{ like.user.avatar.url }}" alt="Avatar"
+                                                                   width="20">{{ like.user.username }}</a></li>
+                <p>Data polubienia: {{ like.liked_date }}</p>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <h4>Brak</h4>
+    {% endif %}
+{% endblock %}
