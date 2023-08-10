@@ -54,3 +54,17 @@ class CreateConversationForm(forms.ModelForm):
             'receiver': forms.HiddenInput(),
             'listing': forms.HiddenInput()
         }
+
+
+class CreateMessageForm(forms.ModelForm):
+    class Meta:
+        model = Messages
+        fields = ['conversation', 'sender', 'body']
+        widgets = {
+            'conversation': forms.HiddenInput(),
+            'sender': forms.HiddenInput(),
+            'body': forms.Textarea(attrs={'rows': 2})
+        }
+        labels = {
+            'body': 'Wiadomość'
+        }

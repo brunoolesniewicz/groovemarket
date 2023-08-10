@@ -14,6 +14,7 @@
             <h3>Konwersacja z {{ conversation.sender }}</h3>
         {% endif %}
     {% endif %}
+    <h4><a href="/inbox/{{ conversation.id }}/delete/">Usuń konwersację</a></h4>
     {% if conversation_messages %}
         <ul>
             {% for message in conversation_messages %}
@@ -30,5 +31,9 @@
     {% else %}
         <h4>Brak wiadomości</h4>
     {% endif %}
-    <a href="/inbox/{{ conversation.id }}/delete/">Usuń konwersację</a>
+    <form method="post">
+        {% csrf_token %}
+        {{ message_form.as_p }}
+        <button type="submit">Wyślij</button>
+    </form>
 {% endblock %}

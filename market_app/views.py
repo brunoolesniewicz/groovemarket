@@ -6,7 +6,7 @@ from django.contrib import messages
 from .models import CustomUser, Listings, UsersFollows, Offers, UsersLikes, Conversations, Messages
 from django.views.generic import CreateView, UpdateView, DeleteView
 from .forms import CreateUserForm, LoginForm, UpdateUserDetailsForm, CreateListingForm, CreateOfferForm, \
-    CreateConversationForm
+    CreateConversationForm, CreateMessageForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.views import PasswordChangeView
 from django.core.paginator import Paginator
@@ -132,7 +132,6 @@ class UserListingsView(View):
         following_count = UsersFollows.objects.filter(follower=user).count()
         user_followed = UsersFollows.objects.filter(follower=request.user, following=user).exists()
         conversation = Conversations.objects.filter(sender=request.user, receiver=user, listing=None)
-
 
         conversation_form = None
         if user.is_authenticated and request.user != user:
@@ -501,7 +500,7 @@ class ListingLikesView(LoginRequiredMixin, UserPassesTestMixin, View):
 class UserConversationView(LoginRequiredMixin, View):
     def get(self, request):
         user = request.user
-        user_conversations = Conversations.objects.filter(Q(sender=user) | Q(receiver=user)).order_by('updated_at')
+        user_conversations = Conversations.objects.filter(Q(sender=user) | Q(receiver=user)).order_by('-last_message')
 
         context = {
             "user": user,
@@ -518,13 +517,58 @@ class ConversationView(LoginRequiredMixin, UserPassesTestMixin, View):
         return self.request.user == conversation.sender or self.request.user == conversation.receiver
 
     def get(self, request, conversation_id):
+        user = request.user
         conversation = Conversations.objects.get(id=conversation_id)
         conversation_messages = Messages.objects.filter(conversation_id=conversation.id).order_by('sent_date')
+        listing = None
+        if conversation.listing:
+            listing = conversation.listing
+
+        initial_message_data = {
+            'sender': user,
+            'listing': listing,
+            'conversation': conversation
+        }
+        message_form = CreateMessageForm(initial=initial_message_data)
 
         context = {
             "user": request.user,
             "conversation": conversation,
-            "conversation_messages": conversation_messages
+            "conversation_messages": conversation_messages,
+            "listing": listing,
+            "message_form": message_form
+        }
+
+        return render(request, "conversation.html", context)
+
+    def post(self, request, conversation_id):
+        user = request.user
+        conversation = Conversations.objects.get(id=conversation_id)
+        conversation_messages = Messages.objects.filter(conversation_id=conversation.id).order_by('sent_date')
+        listing = None
+        if conversation.listing:
+            listing = conversation.listing
+
+        form = CreateMessageForm(request.POST)
+        if form.is_valid():
+            message = form.save(commit=False)
+            message.sender = user
+            message.listing = listing
+            message.save()
+
+            conversation.last_message = message
+            conversation.save()
+
+            return redirect(request.path_info)
+        else:
+            message_form = form
+
+        context = {
+            'user': user,
+            'listing': listing,
+            'conversation': conversation,
+            'message_form': message_form,
+            'conversation_messages': conversation_messages
         }
 
         return render(request, "conversation.html", context)
