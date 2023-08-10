@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    {% if conversation.listing %}
+        <a href="/listing/{{ conversation.listing.slug }}/"><img src="{{ conversation.listing.image_1.url }}"
+                                                                 alt="Image1" width="350"></a>
+        <a href="/listing/{{ conversation.listing.slug }}"><h2>{{ conversation.listing.title }}</h2></a>
+        <h3>Cena: {{ conversation.listing.price }}PLN</h3>
+    {% else %}
+        {% if request.user == conversation.sender %}
+            <h3>Konwersacja z {{ conversation.receiver }}</h3>
+        {% else %}
+            <h3>Konwersacja z {{ conversation.sender }}</h3>
+        {% endif %}
+    {% endif %}
+    {% if conversation_messages %}
+        <ul>
+            {% for message in conversation_messages %}
+                <li>
+                    <p><a href="/user/{{ message.sender.username }}/"><img src="{{ message.sender.avatar.url }}"
+                                                                           alt="Avatar"
+                                                                           width="30">{{ message.sender.username }}</a>
+                    </p>
+                    <p>{{ message.body }}</p>
+                    <p>{{ message.sent_date }}</p>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <h4>Brak wiadomości</h4>
+    {% endif %}
+    <a href="/inbox/{{ conversation.id }}/delete/">Usuń konwersację</a>
+{% endblock %}

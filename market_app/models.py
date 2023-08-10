@@ -82,16 +82,33 @@ class UsersLikes(models.Model):
         return f"{self.user.username} likes {self.listing.title}"
 
 
-class Messages(models.Model):
-    sender = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="sent_by")
-    receiver = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="sent_to")
-    listing = models.ForeignKey(Listings, on_delete=models.CASCADE, null=True)
-    subject = models.CharField(max_length=50, blank=False, default="Brak tematu")
-    body = models.TextField(blank=False)
-    sent_date = models.DateTimeField(auto_now_add=True)
+class Conversations(models.Model):
+    sender = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="sender_user")
+    receiver = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="receiver_user")
+    listing = models.ForeignKey(Listings, on_delete=models.CASCADE, null=True, blank=True)
+    last_message = models.ForeignKey('Messages', on_delete=models.SET_NULL, null=True, blank=True,
+                                     related_name="conversation_last_message")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-last_message__sent_date']
 
     def __str__(self):
-        return f"From: {self.sender.username} To: {self.receiver.username} Date: {self.sent_date}"
+        return f"Conversation between {self.sender} and {self.receiver} about {self.listing}"
+
+
+class Messages(models.Model):
+    conversation = models.ForeignKey(Conversations, on_delete=models.CASCADE)
+    sender = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='sent_messages')
+    body = models.TextField(max_length=300)
+    sent_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['sent_date']
+
+    def __str__(self):
+        return f"{self.sender}: {self.body}"
 
 
 class Offers(models.Model):

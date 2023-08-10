@@ -3,9 +3,10 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .models import CustomUser, Listings, UsersFollows, Offers, UsersLikes
+from .models import CustomUser, Listings, UsersFollows, Offers, UsersLikes, Conversations, Messages
 from django.views.generic import CreateView, UpdateView, DeleteView
-from .forms import CreateUserForm, LoginForm, UpdateUserDetailsForm, CreateListingForm, CreateOfferForm
+from .forms import CreateUserForm, LoginForm, UpdateUserDetailsForm, CreateListingForm, CreateOfferForm, \
+    CreateConversationForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.views import PasswordChangeView
 from django.core.paginator import Paginator
@@ -130,6 +131,17 @@ class UserListingsView(View):
         followers_count = UsersFollows.objects.filter(following=user).count()
         following_count = UsersFollows.objects.filter(follower=user).count()
         user_followed = UsersFollows.objects.filter(follower=request.user, following=user).exists()
+        conversation = Conversations.objects.filter(sender=request.user, receiver=user, listing=None)
+
+
+        conversation_form = None
+        if user.is_authenticated and request.user != user:
+            initial_conversation_data = {
+                'sender': request.user,
+                'receiver': user,
+                'listing': None
+            }
+            conversation_form = CreateConversationForm(initial=initial_conversation_data)
 
         context = {
             "listings": listings,
@@ -137,23 +149,38 @@ class UserListingsView(View):
             'user_listings_count': listings.count(),
             'followers_count': followers_count,
             'following_count': following_count,
-            'user_followed': user_followed
+            'user_followed': user_followed,
+            'conversation_form': conversation_form,
+            'conversation': conversation
         }
 
         return render(request, "user_listings.html", context)
 
     def post(self, request, username):
         user_to_follow = CustomUser.objects.get(username=username)
+        user = request.user
 
-        if request.user == user_to_follow:
+        if user == user_to_follow:
             return HttpResponseForbidden("Nie możesz obserwować samego siebie.")
 
-        user_followed = UsersFollows.objects.filter(follower=request.user, following=user_to_follow).exists()
+        user_followed = UsersFollows.objects.filter(follower=user, following=user_to_follow).exists()
 
         if user_followed:
-            UsersFollows.objects.filter(follower=request.user, following=user_to_follow).delete()
+            UsersFollows.objects.filter(follower=user, following=user_to_follow).delete()
         else:
-            UsersFollows.objects.create(follower=request.user, following=user_to_follow)
+            UsersFollows.objects.create(follower=user, following=user_to_follow)
+
+        if user.is_authenticated and user != user_to_follow:
+            form_conversation = CreateConversationForm(request.POST)
+            if form_conversation.is_valid():
+                conversation = form_conversation.save(commit=False)
+                conversation.sender = user
+                conversation.receiver = user_to_follow
+                conversation.listing = None
+                conversation.save()
+                return redirect(f"/inbox/{conversation.id}")
+            else:
+                conversation_form = form_conversation
 
         return redirect(f'/user/{user_to_follow.username}/')
 
@@ -164,7 +191,8 @@ class AllListingsView(View):
 
         search_query = request.GET.get("q")
         if search_query:
-            listings = listings.filter(Q(title__icontains=search_query) | Q(artist__icontains=search_query) | Q(seller__username__icontains=search_query))
+            listings = listings.filter(Q(title__icontains=search_query) | Q(artist__icontains=search_query) | Q(
+                seller__username__icontains=search_query))
 
         category_filter = request.GET.get('category')
         genre_filter = request.GET.get('genre')
@@ -216,6 +244,7 @@ class ListingDetailsView(View):
         user = request.user
         is_liked = UsersLikes.objects.filter(user=user, listing_id=listing.id).exists()
         images_list = []
+        conversation = Conversations.objects.filter(sender=user, receiver=listing.seller, listing=listing)
 
         if listing.image_1:
             images_list.append(listing.image_1)
@@ -226,11 +255,20 @@ class ListingDetailsView(View):
 
         offer_form = None
         if user.is_authenticated and user != listing.seller:
-            initial_data = {
+            initial_offer_data = {
                 'user': user,
                 'listing': listing
             }
-            offer_form = CreateOfferForm(initial=initial_data)
+            offer_form = CreateOfferForm(initial=initial_offer_data)
+
+        conversation_form = None
+        if user.is_authenticated and user != listing.seller:
+            initial_conversation_data = {
+                'sender': user,
+                'receiver': listing.seller,
+                'listing': listing
+            }
+            conversation_form = CreateConversationForm(initial=initial_conversation_data)
 
         context = {
             "listing": listing,
@@ -239,7 +277,9 @@ class ListingDetailsView(View):
             "offer_form": offer_form,
             "offers_count": Offers.objects.filter(listing_id=listing.id).count(),
             "is_liked": is_liked,
-            "listing_likes_count": listing_likes_count
+            "listing_likes_count": listing_likes_count,
+            "conversation": conversation,
+            "conversation_form": conversation_form
         }
 
         return render(request, "listing_details.html", context)
@@ -247,7 +287,9 @@ class ListingDetailsView(View):
     def post(self, request, slug):
         listing = Listings.objects.get(slug=slug)
         user = request.user
+        seller = listing.seller
         offer_form = None
+        conversation_form = None
 
         if user.is_authenticated and user != listing.seller:
             form = CreateOfferForm(request.POST)
@@ -262,10 +304,22 @@ class ListingDetailsView(View):
             else:
                 offer_form = form
 
+            form_conversation = CreateConversationForm(request.POST)
+            if form_conversation.is_valid():
+                conversation = form_conversation.save(commit=False)
+                conversation.sender = user
+                conversation.receiver = seller
+                conversation.listing = listing
+                conversation.save()
+                return redirect(f"/inbox/{conversation.id}")
+            else:
+                conversation_form = form_conversation
+
         context = {
             "listing": listing,
             "user": user,
-            "offer_form": offer_form
+            "offer_form": offer_form,
+            "conversation_form": conversation_form
         }
 
         return render(request, "listing_details.html", context)
@@ -347,8 +401,7 @@ class DeleteAccountView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     success_url = "/"
 
     def test_func(self):
-        user = self.get_object()
-        return self.request.user == user
+        return self.request.user == self.get_object()
 
     def delete(self, request, *args, **kwargs):
         user = self.request.user
@@ -443,3 +496,51 @@ class ListingLikesView(LoginRequiredMixin, UserPassesTestMixin, View):
         }
 
         return render(request, "listing_likes.html", context)
+
+
+class UserConversationView(LoginRequiredMixin, View):
+    def get(self, request):
+        user = request.user
+        user_conversations = Conversations.objects.filter(Q(sender=user) | Q(receiver=user)).order_by('updated_at')
+
+        context = {
+            "user": user,
+            "sender": user_conversations[0].sender if user_conversations else None,
+            "user_conversations": user_conversations
+        }
+
+        return render(request, "conversations_list.html", context)
+
+
+class ConversationView(LoginRequiredMixin, UserPassesTestMixin, View):
+    def test_func(self):
+        conversation = Conversations.objects.get(id=self.kwargs['conversation_id'])
+        return self.request.user == conversation.sender or self.request.user == conversation.receiver
+
+    def get(self, request, conversation_id):
+        conversation = Conversations.objects.get(id=conversation_id)
+        conversation_messages = Messages.objects.filter(conversation_id=conversation.id).order_by('sent_date')
+
+        context = {
+            "user": request.user,
+            "conversation": conversation,
+            "conversation_messages": conversation_messages
+        }
+
+        return render(request, "conversation.html", context)
+
+
+class DeleteConversationView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Conversations
+    template_name = "delete_conversation_confirm.html"
+    success_url = "/inbox/"
+
+    def test_func(self):
+        return self.request.user == self.get_object().sender or self.request.user == self.get_object().receiver
+
+    def delete(self, request, *args, **kwargs):
+        conversation = self.get_object()
+        conversation.delete()
+
+        messages.success(request, "Konwersacja została usunięta.")
+        return super().delete(request, *args, **kwargs)

@@ -19,6 +19,17 @@
                             Obserwuj
                         {% endif %}
                     </button>
+                    {% if not conversation %}
+                        <form method="post">
+                            {% csrf_token %}
+                            {{ conversation_form.as_p }}
+                            <button type="submit">Napisz wiadomość</button>
+                        </form>
+                    {% else %}
+                        <a href="/inbox/{{ conversation.0.id }}/">Przejdź do konwersacji</a>
+                    {% endif %}
+
+
                 </form>
             {% endif %}
         </div>
@@ -35,11 +46,11 @@
                             {% else %}
                                 <p><strong>Brak zdjęcia poglądowego</strong></p>
                             {% endif %}
-                            <p><strong>Cena: {{ listing.price }}</strong></p>
-                        {% if user == request.user %}
-                            <a href="/listing/{{ listing.slug }}/edit">Edytuj</a>
-                            <a href="/listing/{{ listing.slug }}/delete">Usuń</a>
-                        {% endif %}
+                            <p><strong>Cena: {{ listing.price }}PLN</strong></p>
+                            {% if user == request.user %}
+                                <a href="/listing/{{ listing.slug }}/edit">Edytuj</a>
+                                <a href="/listing/{{ listing.slug }}/delete">Usuń</a>
+                            {% endif %}
                         </li>
                     {% endfor %}
                 </ul>

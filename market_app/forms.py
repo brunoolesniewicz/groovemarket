@@ -1,5 +1,5 @@
 from django import forms
-from .models import CustomUser, Listings, Offers
+from .models import CustomUser, Listings, Offers, Conversations, Messages
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.validators import EmailValidator
 
@@ -41,5 +41,16 @@ class CreateOfferForm(forms.ModelForm):
         fields = ['price', 'user', 'listing']
         widgets = {
             'user': forms.HiddenInput(),
+            'listing': forms.HiddenInput()
+        }
+
+
+class CreateConversationForm(forms.ModelForm):
+    class Meta:
+        model = Conversations
+        fields = ['sender', 'receiver', 'listing']
+        widgets = {
+            'sender': forms.HiddenInput(),
+            'receiver': forms.HiddenInput(),
             'listing': forms.HiddenInput()
         }

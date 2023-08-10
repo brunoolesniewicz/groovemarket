@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <h2>Twoje wiadomości:</h2>
+    {% if user_conversations %}
+        <ul>
+            {% for conversation in user_conversations %}
+                <a href="/inbox/{{ conversation.id }}">
+                <li>
+                    {% if user == conversation.sender %}
+                        <img src="{{ conversation.receiver.avatar.url }}" alt="Avatar" width="50">
+                        <p>{{ conversation.receiver.username }}</p>
+                    {% else %}
+                        <img src="{{ conversation.sender.avatar.url }}" alt="Avatar" width="50">
+                        <p>{{ conversation.sender.username }}</p>
+                    {% endif %}
+                    {% if conversation.listing %}
+                        <img src="{{ conversation.listing.image_1.url }}" alt="Image1" width="50">
+                        <p>{{ conversation.listing.title }}</p>
+                    {% endif %}
+                    {% if conversation.last_message %}
+                        <p>{{ conversation.last_message }}</p>
+                    {% endif %}
+                <a href="/inbox/{{ conversation.id }}/delete/">Usuń konwersację</a>
+                </li>
+                </a>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <h3>Brak konwersacji</h3>
+    {% endif %}
+
+{% endblock %}

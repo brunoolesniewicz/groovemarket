@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <h2>Czy na pewno chcesz usunąć konwersacje?</h2>
+    <h4>Uczestnicy rozmowy: <img src="{{ object.sender.avatar.url }}" alt="Avatar" width="20">{{ object.sender }} i <img
+            src="{{ object.receiver.avatar.url }}" alt="Avatar" width="20">{{ object.receiver }}</h4>
+    {% if object.listing %}
+        <h4>Ogłoszenie: {{ object.listing.title }}</h4>
+        <img src="{{ object.listing.image_1.url }}" alt="Image1" width="350">
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Tak, usuń konwersację</button>
+        <a href="/inbox/">Anuluj</a>
+    </form>
+
+{% endblock %}

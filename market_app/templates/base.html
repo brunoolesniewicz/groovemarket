@@ -25,6 +25,7 @@
                 <li><a href="/user/{{ request.user.username }}/">Moje ogłoszenia</a></li>
                 <li><a href="/my_offers/">Otrzymane oferty</a></li>
                 <li><a href="/my_wishlist/">Polubione ogłoszenia</a></li>
+                <li><a href="/inbox/">Moje konwersacje</a></li>
                 <li><a href="/my_account/">Moje dane</a></li>
                 <li><a href="/logout/">Wyloguj się</a></li>
             {% else %}
@@ -46,7 +47,7 @@
                                 <li>
                                     <p><strong><a href="/listing/{{ listing.slug }}/">{{ listing.title }}</a></strong>
                                     </p>
-                                    <p><strong>Cena: {{ listing.price }}</strong></p>
+                                    <p><strong>Cena: {{ listing.price }}PLN</strong></p>
                                     {% if listing.image_1 %}
                                         <p><a href="/listing/{{ listing.slug }}/"><img src="{{ listing.image_1.url }}"
                                                                                        alt="Image 1" width="200"></a>

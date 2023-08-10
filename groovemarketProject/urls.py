@@ -21,7 +21,8 @@ from django.conf.urls.static import static
 from market_app.views import LandingPageView, LoginView, LogoutView, CreateUserView, MyAccountView, \
     UpdateUserDetailsView, ChangePasswordView, UserListingsView, AllListingsView, ListingDetailsView, \
     UserFollowersView, UserFolloweringView, CreateListingView, UpdateListingView, DeleteListingView, \
-    DeleteAccountView, UserOffersView, DeleteOfferView, LikeView, UnlikeView, WishlistView, ListingLikesView
+    DeleteAccountView, UserOffersView, DeleteOfferView, LikeView, UnlikeView, WishlistView, ListingLikesView, \
+    UserConversationView, ConversationView, DeleteConversationView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -46,7 +47,10 @@ urlpatterns = [
     path('listing/<slug:slug>/like/', LikeView.as_view()),
     path('listing/<slug:slug>/unlike/', UnlikeView.as_view()),
     path('my_wishlist/', WishlistView.as_view()),
-    path('listing/<str:slug>/likes/', ListingLikesView.as_view())
+    path('listing/<str:slug>/likes/', ListingLikesView.as_view()),
+    path('inbox/', UserConversationView.as_view()),
+    path('inbox/<int:conversation_id>/', ConversationView.as_view()),
+    path('inbox/<int:pk>/delete/', DeleteConversationView.as_view())
 ]
 
 if settings.DEBUG:
