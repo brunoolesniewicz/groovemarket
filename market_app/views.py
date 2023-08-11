@@ -9,7 +9,6 @@ from .forms import CreateUserForm, LoginForm, UpdateUserDetailsForm, CreateListi
     CreateConversationForm, CreateMessageForm, ChangePasswordForm
 from django.contrib.auth.views import PasswordChangeView
 from django.core.paginator import Paginator
-from django.http import HttpResponseForbidden
 from django.db.models import Q
 
 
@@ -123,7 +122,7 @@ class ChangePasswordView(LoginRequiredMixin, PasswordChangeView):
     success_url = "/my_account/"
 
 
-class UserListingsView(View):
+class UserListingsView(LoginRequiredMixin, View):
     def get(self, request, username):
         user = CustomUser.objects.get(username=username)
         listings = Listings.objects.filter(seller=user)
@@ -133,7 +132,7 @@ class UserListingsView(View):
         conversation = Conversations.objects.filter(sender=request.user, receiver=user, listing=None)
 
         conversation_form = None
-        if user.is_authenticated and request.user != user:
+        if user.is_authenticated:
             initial_conversation_data = {
                 'sender': request.user,
                 'receiver': user,
@@ -158,9 +157,6 @@ class UserListingsView(View):
         user_to_follow = CustomUser.objects.get(username=username)
         user = request.user
 
-        if user == user_to_follow:
-            return HttpResponseForbidden("Nie możesz obserwować samego siebie.")
-
         user_followed = UsersFollows.objects.filter(follower=user, following=user_to_follow).exists()
 
         if user_followed:
@@ -168,22 +164,19 @@ class UserListingsView(View):
         else:
             UsersFollows.objects.create(follower=user, following=user_to_follow)
 
-        if user.is_authenticated and user != user_to_follow:
-            form_conversation = CreateConversationForm(request.POST)
-            if form_conversation.is_valid():
-                conversation = form_conversation.save(commit=False)
-                conversation.sender = user
-                conversation.receiver = user_to_follow
-                conversation.listing = None
-                conversation.save()
-                return redirect(f"/inbox/{conversation.id}")
-            else:
-                conversation_form = form_conversation
+        form_conversation = CreateConversationForm(request.POST)
+        if form_conversation.is_valid():
+            conversation = form_conversation.save(commit=False)
+            conversation.sender = user
+            conversation.receiver = user_to_follow
+            conversation.listing = None
+            conversation.save()
+            return redirect(f"/inbox/{conversation.id}")
 
         return redirect(f'/user/{user_to_follow.username}/')
 
 
-class AllListingsView(View):
+class AllListingsView(LoginRequiredMixin, View):
     def get(self, request):
         listings = Listings.objects.all().order_by('-date_listed')
 
@@ -235,7 +228,7 @@ class AllListingsView(View):
         return render(request, "all_listings.html", context)
 
 
-class ListingDetailsView(View):
+class ListingDetailsView(LoginRequiredMixin, View):
     def get(self, request, slug):
         listing = Listings.objects.get(slug=slug)
         listing_likes_count = listing.likes.count()
@@ -323,7 +316,7 @@ class ListingDetailsView(View):
         return render(request, "listing_details.html", context)
 
 
-class UserFollowersView(View):
+class UserFollowersView(LoginRequiredMixin, View):
     def get(self, request, username):
         user = CustomUser.objects.get(username=username)
         followers = UsersFollows.objects.filter(following=user)
@@ -335,7 +328,7 @@ class UserFollowersView(View):
         return render(request, "followers_list.html", context)
 
 
-class UserFolloweringView(View):
+class UserFolloweringView(LoginRequiredMixin, View):
     def get(self, request, username):
         user = CustomUser.objects.get(username=username)
         following = UsersFollows.objects.filter(follower=user)
@@ -444,7 +437,7 @@ class DeleteOfferView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-class LikeView(View):
+class LikeView(LoginRequiredMixin, View):
     def post(self, request, slug):
         listing = Listings.objects.get(slug=slug)
         user = request.user
@@ -455,7 +448,7 @@ class LikeView(View):
         return redirect(request.META.get('HTTP_REFERER', '/'))
 
 
-class UnlikeView(View):
+class UnlikeView(LoginRequiredMixin, View):
     def post(self, request, slug):
         listing = Listings.objects.get(slug=slug)
         user = request.user

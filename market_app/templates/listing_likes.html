@@ -1,9 +1,12 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
-    <img src="{{ listing.image_1.url }}" alt="Image1" width="350">
-    <h2>{{ listing.title }}</h2>
+    {% if listing.image_1 %}
+        <img src="{{ listing.image_1.url }}" alt="Image1" width="350">
+    {% else %}
+        <h2>Brak zdjęcia</h2>
+    {% endif %}
+    <h2><a href="/listing/{{ listing.slug }}/">{{ listing.title }}</a></h2>
     <h3>Zainterseowani użytkownicy:</h3>
     {% if likes %}
         <ul>

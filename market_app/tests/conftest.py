@@ -113,11 +113,11 @@ def user1_user2_conversation_no_listing(user1, user2):
 
 
 @pytest.fixture
-def user2_user1_conversation_listing1(user1, user2, user1_listing):
+def user1_user2_conversation_listing1(user1, user2, user2_listing):
     return Conversations.objects.create(
-        sender=user2,
-        receiver=user1,
-        listing=user1_listing
+        sender=user1,
+        receiver=user2,
+        listing=user2_listing
     )
 
 

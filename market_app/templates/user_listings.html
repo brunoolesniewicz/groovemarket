@@ -12,7 +12,7 @@
             {% if user != request.user %}
                 <form action="/user/{{ user.username }}/" method="post">
                     {% csrf_token %}
-                    <button type="submit">
+                    <button type="submit" name="follow_unfollow">
                         {% if user_followed %}
                             Odobserwuj
                         {% else %}
@@ -23,7 +23,7 @@
                         <form method="post">
                             {% csrf_token %}
                             {{ conversation_form.as_p }}
-                            <button type="submit">Napisz wiadomość</button>
+                            <button type="submit" name="send_message">Napisz wiadomość</button>
                         </form>
                     {% else %}
                         <a href="/inbox/{{ conversation.0.id }}/">Przejdź do konwersacji</a>
