@@ -1,5 +1,4 @@
 import pytest
-from market_app.models import *
 from market_app.forms import LoginForm
 
 

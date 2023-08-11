@@ -1,5 +1,4 @@
 import pytest
-from market_app.models import *
 
 
 @pytest.mark.django_db
