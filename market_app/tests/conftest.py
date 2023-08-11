@@ -5,7 +5,7 @@ from market_app.models import *
 
 @pytest.fixture
 def client():
-    client = Client
+    client = Client()
     return client
 
 

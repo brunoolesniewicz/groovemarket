@@ -8,6 +8,10 @@ class LoginForm(AuthenticationForm):
     username = forms.CharField(max_length=30, required=True, label="Nazwa użytkowanika")
     password = forms.CharField(max_length=30, required=True, label="Hasło", widget=forms.PasswordInput)
 
+    error_messages = {
+        'invalid_login': "Nieprawidłowa nazwa użytkownika lub hasło."
+    }
+
 
 class CreateUserForm(UserCreationForm):
     username = forms.CharField(max_length=30, required=True, label="Nazwa użytkownika")
