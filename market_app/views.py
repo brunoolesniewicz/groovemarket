@@ -9,7 +9,7 @@ from .forms import CreateUserForm, LoginForm, UpdateUserDetailsForm, CreateListi
     CreateConversationForm, CreateMessageForm, ChangePasswordForm
 from django.contrib.auth.views import PasswordChangeView
 from django.core.paginator import Paginator
-from django.http import Http404, HttpResponseForbidden
+from django.http import HttpResponseForbidden
 from django.db.models import Q
 
 

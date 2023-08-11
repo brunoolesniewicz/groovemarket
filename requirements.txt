@@ -2,3 +2,6 @@ Django
 psycopg2-binary
 Django-autoslug
 Pillow
+flake8
+pytest
+pytest-django

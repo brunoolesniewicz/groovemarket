@@ -56,8 +56,7 @@ ROOT_URLCONF = 'groovemarketProject.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'market_app/templates']
-        ,
+        'DIRS': [BASE_DIR / 'market_app/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
