@@ -6,8 +6,7 @@ from django.contrib import messages
 from .models import CustomUser, Listings, UsersFollows, Offers, UsersLikes, Conversations, Messages
 from django.views.generic import CreateView, UpdateView, DeleteView
 from .forms import CreateUserForm, LoginForm, UpdateUserDetailsForm, CreateListingForm, CreateOfferForm, \
-    CreateConversationForm, CreateMessageForm
-from django.contrib.auth.forms import PasswordChangeForm
+    CreateConversationForm, CreateMessageForm, ChangePasswordForm
 from django.contrib.auth.views import PasswordChangeView
 from django.core.paginator import Paginator
 from django.http import Http404, HttpResponseForbidden
@@ -119,7 +118,7 @@ class UpdateUserDetailsView(LoginRequiredMixin, UpdateView):
 
 
 class ChangePasswordView(LoginRequiredMixin, PasswordChangeView):
-    form_class = PasswordChangeForm
+    form_class = ChangePasswordForm
     template_name = "change_password_form.html"
     success_url = "/my_account/"
 

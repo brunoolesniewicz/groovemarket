@@ -1,6 +1,6 @@
 from django import forms
 from .models import CustomUser, Listings, Offers, Conversations, Messages
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
 from django.core.validators import EmailValidator
 
 
@@ -68,3 +68,18 @@ class CreateMessageForm(forms.ModelForm):
         labels = {
             'body': 'Wiadomość'
         }
+
+
+class ChangePasswordForm(PasswordChangeForm):
+    old_password = forms.CharField(
+        widget=forms.PasswordInput(),
+        label='Stare hasło'
+    )
+    new_password1 = forms.CharField(
+        widget=forms.PasswordInput(),
+        label='Nowe hasło'
+    )
+    new_password2 = forms.CharField(
+        widget=forms.PasswordInput(),
+        label='Potwierdź nowe hasło'
+    )
