@@ -4,6 +4,10 @@ from autoslug import AutoSlugField
 
 
 class CustomUser(AbstractUser):
+    """
+    CustomUser: Rozszerza klasę AbstractUser, reprezentującą użytkownika aplikacji.
+    """
+
     bio = models.TextField(max_length=150, blank=True)
     avatar = models.ImageField(upload_to='avatars/', default='default_avatar.jpg', blank=False, null=True)
     follows = models.ManyToManyField('self', symmetrical=False, through="UsersFollows")
@@ -13,6 +17,10 @@ class CustomUser(AbstractUser):
 
 
 class UsersFollows(models.Model):
+    """
+    UsersFollows: Przechowuje informacje o obserwacjach między użytkownikami.
+    """
+
     follower = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="following_users_set")
     following = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="followers_users_set")
     date_of_follow = models.DateTimeField(auto_now_add=True)
@@ -22,6 +30,10 @@ class UsersFollows(models.Model):
 
 
 class Listings(models.Model):
+    """
+    Listings: Przechowuje informacje o ogłoszeniach w serwisie.
+    """
+
     CATEGORIES = (
         ("vinyl", "Winyl"),
         ("cd", "Płyta CD"),
@@ -74,6 +86,10 @@ class Listings(models.Model):
 
 
 class UsersLikes(models.Model):
+    """
+    UsersLikes: Relacja między użytkownikami i polubionymi ogłoszeniami.
+    """
+
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     listing = models.ForeignKey(Listings, on_delete=models.CASCADE)
     liked_date = models.DateTimeField(auto_now_add=True)
@@ -83,6 +99,10 @@ class UsersLikes(models.Model):
 
 
 class Conversations(models.Model):
+    """
+    Conversations: Przechowuje konwersacje między użytkownikami dotyczące ogłoszeń.
+    """
+
     sender = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="sender_user")
     receiver = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="receiver_user")
     listing = models.ForeignKey(Listings, on_delete=models.CASCADE, null=True, blank=True)
@@ -99,6 +119,10 @@ class Conversations(models.Model):
 
 
 class Messages(models.Model):
+    """
+    Messages: Przechowuje wiadomości w konwersacjach między użytkownikami.
+    """
+
     conversation = models.ForeignKey(Conversations, on_delete=models.CASCADE)
     sender = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='sent_messages')
     body = models.TextField(max_length=300)
@@ -112,6 +136,10 @@ class Messages(models.Model):
 
 
 class Offers(models.Model):
+    """
+    Offers: Przechowuje oferty złożone na ogłoszenia przez użytkowników.
+    """
+
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     listing = models.ForeignKey(Listings, on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=8, decimal_places=2)
