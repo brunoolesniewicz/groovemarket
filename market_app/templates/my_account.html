@@ -11,6 +11,8 @@
 
         <div>
             <p><strong>Nazwa użytkownika:</strong> {{ user.username }}</p>
+            <p><strong>Imię:</strong> {{ user.first_name }}</p>
+            <p><strong>Nazwisko:</strong> {{ user.last_name }}</p>
             <p><strong>Bio:</strong> {{ user.bio }}</p>
             <p><strong>Data dołączenia:</strong> {{ user.date_joined }}</p>
             <p><strong>Liczba ogłoszeń:</strong><a href="/user/{{ user.username }}/"> {{ user_listings_count }}</a></p>

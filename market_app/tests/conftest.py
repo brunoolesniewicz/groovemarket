@@ -23,6 +23,13 @@ def user1():
 
 
 @pytest.fixture
+def authenticated_user1(user1):
+    client = Client()
+    client.login(username=user1.username, password='testpassword1')
+    return client
+
+
+@pytest.fixture
 def user2():
     return CustomUser.objects.create_user(
         username='testuser2',

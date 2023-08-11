@@ -87,3 +87,7 @@ class ChangePasswordForm(PasswordChangeForm):
         widget=forms.PasswordInput(),
         label='Potwierdź nowe hasło'
     )
+
+    error_messages = {
+        'password_mismatch': 'Nowe hasła nie są takie same.'
+    }
