@@ -13,6 +13,11 @@ from django.db.models import Q
 
 
 class LandingPageView(View):
+    """
+    LandingPageView: Wyświetla stronę główną z ofertami od obserwowanych użytkowników, jeśli jest się zalogowanym.
+    W przeciwnym razie prosi o zalogowanie.
+    """
+
     def get(self, request):
         user = request.user
         page = None
@@ -36,6 +41,10 @@ class LandingPageView(View):
 
 
 class LoginView(View):
+    """
+    LoginView: Wyświetla stronę logowania i obsługuje proces logowania użytkownika.
+    """
+
     def get(self, request):
         form = LoginForm
         context = {"form": form}
@@ -55,12 +64,20 @@ class LoginView(View):
 
 
 class LogoutView(View):
+    """
+    LogoutView: Wylogowuje zalogowanego użytkownika.
+    """
+
     def get(self, request):
         logout(request)
         return redirect("/")
 
 
 class CreateUserView(CreateView):
+    """
+    CreateUserView: Obsługuje rejestrację użytkownika za pomocą formularza CreateUserForm.
+    """
+
     form_class = CreateUserForm
     template_name = "user_creation_form.html"
     success_url = "/login/"
@@ -83,6 +100,10 @@ class CreateUserView(CreateView):
 
 
 class MyAccountView(LoginRequiredMixin, View):
+    """
+    MyAccountView: Wyświetla szczegóły konta użytkownika oraz obsługuje usuwanie avatara.
+    """
+
     def get(self, request):
         user = request.user
         user_listings_count = Listings.objects.filter(seller=user).count()
@@ -108,6 +129,10 @@ class MyAccountView(LoginRequiredMixin, View):
 
 
 class UpdateUserDetailsView(LoginRequiredMixin, UpdateView):
+    """
+    UpdateUserDetailsView: Pozwala zalogowanemu użytkownikowi na aktualizację swoich danych.
+    """
+
     form_class = UpdateUserDetailsForm
     template_name = "update_user_details_form.html"
     success_url = "/my_account/"
@@ -117,12 +142,21 @@ class UpdateUserDetailsView(LoginRequiredMixin, UpdateView):
 
 
 class ChangePasswordView(LoginRequiredMixin, PasswordChangeView):
+    """
+    ChangePasswordView: Pozwala zalogowanemu użytkownikowi na zmianę hasła.
+    """
+
     form_class = ChangePasswordForm
     template_name = "change_password_form.html"
     success_url = "/my_account/"
 
 
 class UserListingsView(LoginRequiredMixin, View):
+    """
+    UserListingsView: Wyświetla oferty określonego użytkownika i obsługuje funkcje obserwowania/nieobserwowania
+    oraz tworzenia rozmów.
+    """
+
     def get(self, request, username):
         user = CustomUser.objects.get(username=username)
         listings = Listings.objects.filter(seller=user)
@@ -177,6 +211,10 @@ class UserListingsView(LoginRequiredMixin, View):
 
 
 class AllListingsView(LoginRequiredMixin, View):
+    """
+    AllListingsView: Wyświetla wszystkie oferty z opcjami wyszukiwania, filtrowania i sortowania.
+    """
+
     def get(self, request):
         listings = Listings.objects.all().order_by('-date_listed')
 
@@ -229,6 +267,10 @@ class AllListingsView(LoginRequiredMixin, View):
 
 
 class ListingDetailsView(LoginRequiredMixin, View):
+    """
+    ListingDetailsView: Wyświetla szczegóły konkretnego ogłoszenia oraz obsługuje oferty, polubienia i rozmowy.
+    """
+
     def get(self, request, slug):
         listing = Listings.objects.get(slug=slug)
         listing_likes_count = listing.likes.count()
@@ -317,6 +359,10 @@ class ListingDetailsView(LoginRequiredMixin, View):
 
 
 class UserFollowersView(LoginRequiredMixin, View):
+    """
+    UserFollowersView: Wyświetla listę obserwujących określonego użytkownika.
+    """
+
     def get(self, request, username):
         user = CustomUser.objects.get(username=username)
         followers = UsersFollows.objects.filter(following=user)
@@ -329,6 +375,10 @@ class UserFollowersView(LoginRequiredMixin, View):
 
 
 class UserFolloweringView(LoginRequiredMixin, View):
+    """
+    UserFolloweringView: Wyświetla listę użytkowników obserwowanych przez określonego użytkownika.
+    """
+
     def get(self, request, username):
         user = CustomUser.objects.get(username=username)
         following = UsersFollows.objects.filter(follower=user)
@@ -341,6 +391,10 @@ class UserFolloweringView(LoginRequiredMixin, View):
 
 
 class CreateListingView(LoginRequiredMixin, CreateView):
+    """
+    CreateListingView: Pozwala zalogowanemu użytkownikowi na dodanie nowego ogłoszenia.
+    """
+
     form_class = CreateListingForm
     template_name = 'create_listing_form.html'
     model = Listings
@@ -354,11 +408,18 @@ class CreateListingView(LoginRequiredMixin, CreateView):
 
 
 class UpdateListingView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    """
+    UpdateListingView: Pozwala zalogowanemu użytkownikowi na aktualizację swojego ogłoszenia.
+    """
+
     model = Listings
     form_class = CreateListingForm
     template_name = "edit_listing_form.html"
 
     def test_func(self):
+        """
+        Sprawdza czy zalogowany użytkownik jest właścicielem ogłoszenia.
+        """
         listing = self.get_object()
         return self.request.user == listing.seller
 
@@ -371,30 +432,56 @@ class UpdateListingView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
 
 class DeleteListingView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    """
+    DeleteListingView: Pozwala zalogowanemu użytkownikowi na usunięcie swojego ogłoszenia.
+    """
+
     model = Listings
     template_name = "delete_listing_confirm.html"
 
     def test_func(self):
+        """
+        Sprawdza czy zalogowany użytkownik jest właścicielem ogłoszenia.
+        """
+
         listing = self.get_object()
         return self.request.user == listing.seller
 
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        return queryset.filter(seller=self.request.user)
+    def delete(self, request, *args, **kwargs):
+        """
+        Usuwanie ogłoszenia.
+        """
+
+        listing = Listings.objects.get(slug=self.kwargs['slug'])
+        listing.delete()
+
+        messages.success(request, "Ogłoszenie zostało pomyślnie usunięte.")
+        return super().delete(request, *args, **kwargs)
 
     def get_success_url(self):
         return f"/user/{self.request.user.username}/"
 
 
 class DeleteAccountView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    """
+    DeleteAccountView: Pozwala zalogowanemu użytkownikowi na usunięcie swojego konta.
+    """
+
     model = CustomUser
     template_name = "delete_account_confirm.html"
     success_url = "/"
 
     def test_func(self):
+        """
+        Sprawdza czy zalogowany użytkownik jest właścicielem konta.
+        """
+
         return self.request.user == self.get_object()
 
     def delete(self, request, *args, **kwargs):
+        """
+        Usuwanie konta.
+        """
         user = self.request.user
         user.delete()
 
@@ -403,6 +490,10 @@ class DeleteAccountView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 
 class UserOffersView(LoginRequiredMixin, View):
+    """
+    UserOffersView: Wyświetla oferty złożone na ogłoszenia użytkownika.
+    """
+
     def get(self, request):
         user = request.user
         listings_with_offers = []
@@ -422,14 +513,26 @@ class UserOffersView(LoginRequiredMixin, View):
 
 
 class DeleteOfferView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    """
+    DeleteOfferView: Pozwala zalogowanemu użytkownikowi na usunięcie niezadawalającej oferty.
+    """
+
     model = Offers
     template_name = "delete_offer_confirm.html"
     success_url = "/my_offers/"
 
     def test_func(self):
+        """
+        Sprawdza czy zalogowany użytkownik jest właścicielem ogłoszenia, którego dotyczy oferta.
+        """
+
         return self.request.user == self.get_object().listing.seller
 
     def delete(self, request, *args, **kwargs):
+        """
+        Usuwanie oferty.
+        """
+
         offer = self.get_object()
         offer.delete()
 
@@ -438,6 +541,10 @@ class DeleteOfferView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 
 class LikeView(LoginRequiredMixin, View):
+    """
+    LikeView: Obsługuje polubienie ogłoszenia.
+    """
+
     def post(self, request, slug):
         listing = Listings.objects.get(slug=slug)
         user = request.user
@@ -449,6 +556,10 @@ class LikeView(LoginRequiredMixin, View):
 
 
 class UnlikeView(LoginRequiredMixin, View):
+    """
+    UnlikeView: Obsługuje usuwanie polubienia ogłoszenia.
+    """
+
     def post(self, request, slug):
         listing = Listings.objects.get(slug=slug)
         user = request.user
@@ -460,6 +571,10 @@ class UnlikeView(LoginRequiredMixin, View):
 
 
 class WishlistView(LoginRequiredMixin, View):
+    """
+    WishlistView: Wyświetla ogłoszenia polubione przez użytkownika.
+    """
+
     def get(self, request):
         user = request.user
         user_likes = UsersLikes.objects.filter(user=user)
@@ -473,7 +588,15 @@ class WishlistView(LoginRequiredMixin, View):
 
 
 class ListingLikesView(LoginRequiredMixin, UserPassesTestMixin, View):
+    """
+    ListingLikesView: Wyświetla użytkowników, którzy polubili konkretne ogłoszenie.
+    """
+
     def test_func(self):
+        """
+        Sprawdza czy zalogowany użytkownik jest właścicielem ogłoszenia, którego dotyczą polubienia.
+        """
+
         listing = Listings.objects.get(slug=self.kwargs['slug'])
         return self.request.user == listing.seller
 
@@ -490,6 +613,10 @@ class ListingLikesView(LoginRequiredMixin, UserPassesTestMixin, View):
 
 
 class UserConversationView(LoginRequiredMixin, View):
+    """
+    UserConversationView: Wyświetla listę rozmów użytkownika.
+    """
+
     def get(self, request):
         user = request.user
         user_conversations = Conversations.objects.filter(Q(sender=user) | Q(receiver=user)).order_by('-last_message')
@@ -504,7 +631,15 @@ class UserConversationView(LoginRequiredMixin, View):
 
 
 class ConversationView(LoginRequiredMixin, UserPassesTestMixin, View):
+    """
+    ConversationView: Wyświetla i obsługuje wiadomości w ramach rozmowy.
+    """
+
     def test_func(self):
+        """
+        Sprawdza czy zalogowany użytkownik jest uczestnikiem danej konwersacji.
+        """
+
         conversation = Conversations.objects.get(id=self.kwargs['conversation_id'])
         return self.request.user == conversation.sender or self.request.user == conversation.receiver
 
@@ -567,14 +702,26 @@ class ConversationView(LoginRequiredMixin, UserPassesTestMixin, View):
 
 
 class DeleteConversationView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    """
+    DeleteConversationView: Pozwala zalogowanemu użytkownikowi na usunięcie rozmowy.
+    """
+
     model = Conversations
     template_name = "delete_conversation_confirm.html"
     success_url = "/inbox/"
 
     def test_func(self):
+        """
+        Sprawdza czy zalogowany użytkownik jest uczestnikiem danej konwersacji.
+        """
+
         return self.request.user == self.get_object().sender or self.request.user == self.get_object().receiver
 
     def delete(self, request, *args, **kwargs):
+        """
+        Usuwanie konwersacji.
+        """
+
         conversation = self.get_object()
         conversation.delete()
 
