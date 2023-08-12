@@ -18,7 +18,7 @@
     {% if conversation_messages %}
         <ul>
             {% for message in conversation_messages %}
-                <li>
+                <li class="message">
                     <p><a href="/user/{{ message.sender.username }}/"><img src="{{ message.sender.avatar.url }}"
                                                                            alt="Avatar"
                                                                            width="30">{{ message.sender.username }}</a>

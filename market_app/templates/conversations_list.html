@@ -10,17 +10,17 @@
                 <li>
                     {% if user == conversation.sender %}
                         <img src="{{ conversation.receiver.avatar.url }}" alt="Avatar" width="50">
-                        <p>{{ conversation.receiver.username }}</p>
+                        <h4>{{ conversation.receiver.username }}</h4>
                     {% else %}
                         <img src="{{ conversation.sender.avatar.url }}" alt="Avatar" width="50">
-                        <p>{{ conversation.sender.username }}</p>
+                        <h4>{{ conversation.sender.username }}</h4>
                     {% endif %}
                     {% if conversation.listing %}
                         <img src="{{ conversation.listing.image_1.url }}" alt="Image1" width="50">
-                        <p>{{ conversation.listing.title }}</p>
+                        <h4>{{ conversation.listing.title }}</h4>
                     {% endif %}
                     {% if conversation.last_message %}
-                        <p>{{ conversation.last_message }}</p>
+                        <h4>{{ conversation.last_message }}</h4>
                     {% endif %}
                 <a href="/inbox/{{ conversation.id }}/delete/">Usuń konwersację</a>
                 </li>
