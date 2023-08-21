@@ -193,19 +193,20 @@ class UserListingsView(LoginRequiredMixin, View):
 
         user_followed = UsersFollows.objects.filter(follower=user, following=user_to_follow).exists()
 
-        if user_followed:
-            UsersFollows.objects.filter(follower=user, following=user_to_follow).delete()
-        else:
-            UsersFollows.objects.create(follower=user, following=user_to_follow)
-
-        form_conversation = CreateConversationForm(request.POST)
-        if form_conversation.is_valid():
-            conversation = form_conversation.save(commit=False)
-            conversation.sender = user
-            conversation.receiver = user_to_follow
-            conversation.listing = None
-            conversation.save()
-            return redirect(f"/inbox/{conversation.id}")
+        if "follow_unfollow" in request.POST:
+            if user_followed:
+                UsersFollows.objects.filter(follower=user, following=user_to_follow).delete()
+            else:
+                UsersFollows.objects.create(follower=user, following=user_to_follow)
+        elif "send_message" in request.POST:
+            form_conversation = CreateConversationForm(request.POST)
+            if form_conversation.is_valid():
+                conversation = form_conversation.save(commit=False)
+                conversation.sender = user
+                conversation.receiver = user_to_follow
+                conversation.listing = None
+                conversation.save()
+                return redirect(f"/inbox/{conversation.id}")
 
         return redirect(f'/user/{user_to_follow.username}/')
 
